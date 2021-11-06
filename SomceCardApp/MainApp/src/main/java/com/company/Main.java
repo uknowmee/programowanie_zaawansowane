@@ -46,7 +46,6 @@ public class Main {
         System.out.println("#########################################");
 
 
-        CryptUtil cryptUtil =new CryptUtil();
-        System.out.println(cryptUtil.sha512("thanks for coding me hehehe"));
+        System.out.println(CryptUtil.sha512("thanks for coding me hehehe"));
     }
 }
