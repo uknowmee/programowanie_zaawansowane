@@ -17,7 +17,11 @@ public class CryptUtil {
         return Sha2Crypt.sha512Crypt(value.getBytes());
     }
 
-    public static double add(double num_1, double num_2) {
-        return num_1 + num_2;
+    public static double add(double num1, double num2) {
+        return num1 + num2;
+    }
+
+    private CryptUtil(){
+
     }
 }

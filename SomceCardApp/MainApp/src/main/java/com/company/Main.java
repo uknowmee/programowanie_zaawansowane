@@ -1,5 +1,9 @@
 package com.company;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import java.security.NoSuchAlgorithmException;
+
 
 /**
  * Main program class
@@ -7,45 +11,51 @@ package com.company;
 public class Main {
 
     /**
+     * Program logger, properties are in commons
+     */
+    static final Logger logger = Logger.getLogger(Main.class.getName());
+
+    /**
      * main program function
      * @param args program start arguments
      */
-    public static void main( String[] args ) {
+    public static void main( String[] args ) throws NoSuchAlgorithmException {
 
-        System.out.println("#########################################");
-        System.out.println("fresh deck:");
-        Deck myDeck = new Deck();
+        PropertyConfigurator.configure("./CommonUtil/src/main/resources/log4j.properties");
+        logger.info("#########################################");
+        logger.info("fresh deck:");
+        Deck myDeck = new Deck(logger);
         myDeck.printDeck();
 
-        System.out.println("\n\nshuffled deck:");
+        logger.info("\n\nshuffled deck:");
         myDeck.setCards(myDeck.shuffle());
         myDeck.printDeck();
 
-        System.out.println("\n\nfabric deck:");
+        logger.info("\n\nfabric deck:");
         myDeck.setCards(myDeck.fabric());
         myDeck.printDeck();
 
-        System.out.println("\n\nadding players:");
+        logger.info("\n\nadding players:");
         for (int i = 0; i < 4; i++) {
             myDeck.addPlayer();
         }
 
-        System.out.println("\n\nprinting players:");
+        logger.info("\n\nprinting players:");
         myDeck.printPlayerNames();
 
-        System.out.println("\n\ndealing shuffled cards:");
+        logger.info("\n\ndealing shuffled cards:");
         myDeck.setCards(myDeck.shuffle());
         myDeck.dealTheCards();
 
-        System.out.println("\n\ndealt deck:");
+        logger.info("\n\ndealt deck:");
         myDeck.printDeck();
 
-        System.out.println("\n\ncollected deck");
+        logger.info("\n\ncollected deck");
         myDeck.collectTheCards();
         myDeck.printDeck();
-        System.out.println("#########################################");
+        logger.info("#########################################");
 
 
-        System.out.println(CryptUtil.sha512("thanks for coding me hehehe"));
+        logger.info(CryptUtil.sha512("thanks for coding me hehehe"));
     }
 }

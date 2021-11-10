@@ -1,6 +1,10 @@
 package com.company;
 
 
+import org.apache.log4j.Logger;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -10,6 +14,15 @@ import java.util.Scanner;
  * class representing classic Deck
  */
 public class Deck {
+    /**
+     * field used in shuffle function
+     */
+    private final Random random = SecureRandom.getInstanceStrong();
+
+    /**
+     * Deck class logger
+     */
+    private Logger logger;
 
     /**
      * List of Cards (card heap)
@@ -31,27 +44,31 @@ public class Deck {
 
         private enum Rank{
 
-            Dziewiatka("Dziewiatka",9),
-            Dziesiatka("Dziesiatka",10),
-            Walet("Walet",11),
-            Dama("Dama",12),
-            Krol("Krol",13),
-            As("As",14);
+            DZIEWIATKA("Dziewiatka",9),
+            DZIESIATKA("Dziesiatka",10),
+            WALET("Walet",11),
+            DAMA("Dama",12),
+            KROL("Krol",13),
+            AS("As",14);
 
             private final int value;
+            private final String designation;
 
             Rank(String designation, int value) {
                 this.value = value;
+                this.designation = designation;
             }
         }
         private enum Suit{
 
-            Pik("Pik"),
-            Trefl("Trefl"),
-            Kier("Kier"),
-            Karo("Karo");
+            PIK("Pik"),
+            TREFL("Trefl"),
+            KIER("Kier"),
+            KARO("Karo");
 
-            Suit(String suitToSet) {}
+            private final String suitOfCard;
+
+            Suit(String suitToSet) {this.suitOfCard = suitToSet;}
         }
 
         @Override
@@ -59,11 +76,9 @@ public class Deck {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof Card)) {
+            if (!(o instanceof Card card)) {
                 return false;
             }
-
-            Card card = (Card) o;
 
             if (rank != card.rank) {
                 return false;
@@ -112,22 +127,16 @@ public class Deck {
      */
     public void printDeck(){
 
-        System.out.println("\tcards on heap: " + cards.size());
+        logger.info("\tcards on heap: " + cards.size());
         for (Card card : cards) {
-//            System.out.printf("""
-//                    \t\t%s  (%d)    %s
-//                    """, card.rank.name(), card.rank.value, card.suit.name());
-            System.out.println("\t\t\t" + card.rank.name() + " (" + card.rank.value + ") " + card.suit.name());
+            logger.info("\t\t\t" + card.rank.designation + " (" + card.rank.value + ") " + card.suit.suitOfCard);
         }
 
-        System.out.println("\tcards in players hands: " + (24 - cards.size()));
+        logger.info("\tcards in players hands: " + (24 - cards.size()));
         for (Player player : players) {
-            System.out.println("\t\t" + player.playerName + "s cards: " + player.playerCards.size());
+            logger.info("\t\t" + player.playerName + "s cards: " + player.playerCards.size());
             for (Card card : player.playerCards) {
-//                System.out.printf("""
-//                    \t\t\t%s  (%d)    %s
-//                    """, card.rank.name(), card.rank.value, card.suit.name());
-                System.out.println("\t\t\t" + card.rank.name() + " (" + card.rank.value + ") " + card.suit.name());
+                logger.info("\t\t\t" + card.rank.designation + " (" + card.rank.value + ") " + card.suit.suitOfCard);
             }
         }
     }
@@ -138,7 +147,7 @@ public class Deck {
     public void printPlayerNames() {
 
         for (Player player : players) {
-            System.out.println(player.playerName);
+            logger.info(player.playerName);
         }
     }
 
@@ -148,7 +157,7 @@ public class Deck {
     public void addPlayer() {
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("name the player: ");
+        logger.info("name the player: ");
         players.add(new Player(scanner.next()));
     }
 
@@ -157,13 +166,13 @@ public class Deck {
      */
     public void dealTheCards() {
 
-        if (players.size()!=0) {
+        if (!players.isEmpty()) {
             Scanner scanner = new Scanner(System.in);
-            System.out.println("how much cards do u wanna deal to each player: ");
+            logger.info("how much cards do u wanna deal to each player: ");
 
             int cardsToDeal = scanner.nextInt();
             while (cardsToDeal*players.size() > cards.size() || cardsToDeal <=0){
-                System.out.println("wrong number of cards to deal, define once again: ");
+                logger.info("wrong number of cards to deal, define once again: ");
                 cardsToDeal = scanner.nextInt();
             }
             for (int i = 0; i < cardsToDeal; i++) {
@@ -173,7 +182,7 @@ public class Deck {
             }
         }
         else {
-            System.out.println("cant deal cards");
+            logger.info("cant deal cards");
         }
     }
 
@@ -182,7 +191,7 @@ public class Deck {
      */
     public void collectTheCards() {
 
-        if (players.size()!=0) {
+        if (!players.isEmpty()) {
             for (Player player : players) {
                 for (int i = player.playerCards.size()-1; i >= 0; i--) {
                     cards.add(player.playerCards.remove(i));
@@ -199,15 +208,14 @@ public class Deck {
 
         ArrayList<Card> sorted = new ArrayList<>(this.cards);
         Card card;
-        Random random = new Random();
         int first;
         int second;
 
         for (int i = 0; i < 100; i++) {
-            first = random.nextInt(24);
-            second = random.nextInt(24);
+            first = this.random.nextInt(24);
+            second = this.random.nextInt(24);
             while (first == second){
-                second = random.nextInt(24);
+                second = this.random.nextInt(24);
             }
             card = sorted.get(first);
             sorted.set(first, sorted.get(second));
@@ -237,8 +245,9 @@ public class Deck {
     /**
      * Base constructor
      */
-    public Deck() {
+    public Deck(Logger logger) throws NoSuchAlgorithmException {
 
+        this.logger = logger;
         this.players = new ArrayList<>();
         this.cards = new ArrayList<>();
         this.cards.ensureCapacity(24);
@@ -249,7 +258,7 @@ public class Deck {
      * Special constructor which sets new Deck using the given list of cards
      * @param cards list of Cards from shuffle or fabric method
      */
-    public Deck(ArrayList<Card> cards) {
+    public Deck(ArrayList<Card> cards) throws NoSuchAlgorithmException {
 
         this.cards = cards;
         this.players = new ArrayList<>();
