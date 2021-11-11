@@ -3,11 +3,7 @@ package com.company;
 
 import org.apache.log4j.Logger;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 
 /**
@@ -17,12 +13,12 @@ public class Deck {
     /**
      * field used in shuffle function
      */
-    private final Random random = SecureRandom.getInstanceStrong();
+    private final Random random;
 
     /**
      * Deck class logger
      */
-    private Logger logger;
+    private final Logger logger;
 
     /**
      * List of Cards (card heap)
@@ -42,14 +38,14 @@ public class Deck {
         private final Rank rank;
         private final Suit suit;
 
-        private enum Rank{
+        private enum Rank {
 
-            DZIEWIATKA("Dziewiatka",9),
-            DZIESIATKA("Dziesiatka",10),
-            WALET("Walet",11),
-            DAMA("Dama",12),
-            KROL("Krol",13),
-            AS("As",14);
+            DZIEWIATKA("Dziewiatka", 9),
+            DZIESIATKA("Dziesiatka", 10),
+            WALET("Walet", 11),
+            DAMA("Dama", 12),
+            KROL("Krol", 13),
+            AS("As", 14);
 
             private final int value;
             private final String designation;
@@ -59,7 +55,8 @@ public class Deck {
                 this.designation = designation;
             }
         }
-        private enum Suit{
+
+        private enum Suit {
 
             PIK("Pik"),
             TREFL("Trefl"),
@@ -85,6 +82,7 @@ public class Deck {
             }
             return suit == card.suit;
         }
+
         @Override
         public int hashCode() {
             int result = rank.hashCode();
@@ -92,7 +90,7 @@ public class Deck {
             return result;
         }
 
-        private Card(String suitToSet, String rankToSet){
+        private Card(String suitToSet, String rankToSet) {
 
             this.rank = Rank.valueOf(rankToSet);
             this.suit = Suit.valueOf(suitToSet);
@@ -107,7 +105,7 @@ public class Deck {
         private final ArrayList<Card> playerCards;
         private final String playerName;
 
-        private Player(String playerName){
+        private Player(String playerName) {
 
             this.playerName = playerName;
             this.playerCards = new ArrayList<>();
@@ -118,14 +116,14 @@ public class Deck {
      * Void method which set decks cards list
      * @param cards - can be obtained from shuffle or fabric methods
      */
-    public void setCards(ArrayList<Card> cards){
+    public void setCards(ArrayList<Card> cards) {
         this.cards = cards;
     }
 
     /**
      * Void method which prints whole deck, list of cards, players and certain player cards
      */
-    public void printDeck(){
+    public void printDeck() {
 
         logger.info("\tcards on heap: " + cards.size());
         for (Card card : cards) {
@@ -171,13 +169,13 @@ public class Deck {
             logger.info("how much cards do u wanna deal to each player: ");
 
             int cardsToDeal = scanner.nextInt();
-            while (cardsToDeal*players.size() > cards.size() || cardsToDeal <=0){
+            while (cardsToDeal * players.size() > cards.size() || cardsToDeal <= 0) {
                 logger.info("wrong number of cards to deal, define once again: ");
                 cardsToDeal = scanner.nextInt();
             }
             for (int i = 0; i < cardsToDeal; i++) {
                 for (Player player : players) {
-                    player.playerCards.add(cards.remove(cards.size()-1));
+                    player.playerCards.add(cards.remove(cards.size() - 1));
                 }
             }
         }
@@ -193,7 +191,7 @@ public class Deck {
 
         if (!players.isEmpty()) {
             for (Player player : players) {
-                for (int i = player.playerCards.size()-1; i >= 0; i--) {
+                for (int i = player.playerCards.size() - 1; i >= 0; i--) {
                     cards.add(player.playerCards.remove(i));
                 }
             }
@@ -202,6 +200,7 @@ public class Deck {
 
     /**
      * Method is used by setCards method
+     *
      * @return ArrayList of all cards
      */
     public ArrayList<Card> shuffle() {
@@ -214,7 +213,7 @@ public class Deck {
         for (int i = 0; i < 100; i++) {
             first = this.random.nextInt(24);
             second = this.random.nextInt(24);
-            while (first == second){
+            while (first == second) {
                 second = this.random.nextInt(24);
             }
             card = sorted.get(first);
@@ -227,6 +226,7 @@ public class Deck {
 
     /**
      * Method is used by setCards method
+     *
      * @return ArrayList of all cards
      */
     public ArrayList<Card> fabric() {
@@ -245,22 +245,13 @@ public class Deck {
     /**
      * Base constructor
      */
-    public Deck(Logger logger) throws NoSuchAlgorithmException {
+    public Deck(Logger logger) {
 
+        this.random = new Random();
         this.logger = logger;
         this.players = new ArrayList<>();
         this.cards = new ArrayList<>();
         this.cards.ensureCapacity(24);
         this.cards = this.fabric();
-    }
-
-    /**
-     * Special constructor which sets new Deck using the given list of cards
-     * @param cards list of Cards from shuffle or fabric method
-     */
-    public Deck(ArrayList<Card> cards) throws NoSuchAlgorithmException {
-
-        this.cards = cards;
-        this.players = new ArrayList<>();
     }
 }
