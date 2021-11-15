@@ -2,6 +2,7 @@ package com.company;
 
 import java.io.*;
 import java.net.*;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -31,37 +32,49 @@ public class UserThread extends Thread {
     /**
      * Handles user action
      */
-    void action(){
+    void action() {
         Server.Container container;
         container = server.queuePopFront();
-        utLogger.info(container.toString());
 
-        if (container.getServerText().equals("\\bye")) {
-            System.exit(0);
-        }
+        Server.Split split = new Server.Split(container.getServerText());
 
-        if (container.getServerText().contains("\\help")) {
-            server.writeToUser("""
-                        ###########################################################
-                        commands:\s
-                        \\show users - print all users
-                        \\show decks - print all running decks
-                        \\msg all - msg all connected users
-                        \\bye - exit
-                        ###########################################################
-                        """, container.getUserThread());
-        }
-        else if (container.getServerText().contains("\\show users")) {
-            server.writeToUser(server.getUserNames().toString(), container.getUserThread());
-        }
-        else if (container.getServerText().contains("\\show decks")) {
-            server.writeToUser(server.getDecks().toString(), container.getUserThread());
-        }
-        else if (container.getServerText().contains("\\msg all")) {
-            server.broadcast(container.getServerText(), container.getUserThread());
-        }
-        else {
-            server.writeToUser("unknown command!", container.getUserThread());
+        utLogger.info(container.getUserName() + ": " + split.getCommand() + " " + split.getMessage());
+
+        switch (split.getCommand()) {
+            case "\\help" -> server.writeToUser("""
+                    ###########################################################
+                    commands:\s
+                    \\help - print all commands
+                    \\showusers - print all users
+                    \\showdecks - print all running decks
+                    \\msgall - msg all connected users
+                    \\<username> - msg specified user
+                    \\bye - exit
+                    ###########################################################
+                    """, container.getUserThread());
+            case "\\showusers" -> server.writeToUser(server.getUserNames().toString(), container.getUserThread());
+            case "\\showdecks" -> server.writeToUser(server.getDecks().toString(), container.getUserThread());
+            case "\\msgall" -> server.broadcast(
+                    container.getUserName() + ": " + split.getMessage(), container.getUserThread());
+            default -> {
+                boolean done = false;
+                if (!"\\".concat(container.getUserName()).equals(container.getUserCommandName())) {
+                    server.writeToUser("unknown command!", container.getUserThread());
+                    break;
+                }
+                else {
+                    for (Server.User user : server.getUsers()) {
+                        if (user.getUserCommandName().equals(split.getCommand())) {
+                            server.writeToUser(container.getUserName() + ": " + split.getMessage(), user.getUserThread());
+                            done = true;
+                            break;
+                        }
+                    }
+                }
+                if (!done) {
+                    server.writeToUser("unknown command!", container.getUserThread());
+                }
+            }
         }
     }
 
@@ -75,7 +88,7 @@ public class UserThread extends Thread {
             writer = new PrintWriter(output, true);
 
             String userName = reader.readLine();
-            server.addUserName(userName);
+            server.addUserName(userName, this);
 
             String serverMessage;
             String clientMessage;
@@ -88,7 +101,7 @@ public class UserThread extends Thread {
                 if (!server.queueIsEmpty()) {
                     action();
                 }
-            } while (!clientMessage.equals("bye"));
+            } while (!clientMessage.equals("\\bye"));
 
             server.removeUser(userName, this);
             socket.close();

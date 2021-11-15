@@ -14,14 +14,19 @@ import java.util.*;
 public class Server {
 
     private final int port;
+
     private final Set<String> userNames = new HashSet<>();
     private final Set<UserThread> userThreads = new HashSet<>();
+
+    private final Set<User> users = new HashSet<>();
     private final Set<Deck> decks = new HashSet<>();
+
     private final ArrayList<Container> queue = new ArrayList<>();
     static final Logger serverLogger = Logger.getLogger(Server.class.getName());
 
     static class Container{
         private String userName = "";
+        private String userCommandName = "";
         private String serverText = "";
         private UserThread userThread;
 
@@ -29,8 +34,13 @@ public class Server {
 
         public Container(String userName, UserThread userThread, String serverText){
             this.userName = userName;
+            this.userCommandName = "\\".concat(userName);
             this.userThread = userThread;
             this.serverText = serverText;
+        }
+
+        public String getUserCommandName() {
+            return userCommandName;
         }
 
         public String getUserName() {
@@ -46,6 +56,54 @@ public class Server {
         }
     }
 
+    static class Split {
+        private final String command;
+        private String message;
+
+        public String getCommand() {
+            return command;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public Split(String text){
+            String[] splitText = text.split(" ");
+
+            this.command = splitText[0];
+            this.message = "";
+
+            for (int i = 1; i < splitText.length; i++) {
+                message = message.concat(splitText[i] + " ");
+            }
+        }
+    }
+
+    static class User{
+        private final UserThread userThread;
+        private String userName;
+        private String userCommandName;
+
+        User(UserThread userThreads, String userNames) {
+            this.userThread = userThreads;
+            this.userName = userNames;
+            this.userCommandName = "\\";
+        }
+
+        public String getUserCommandName() {
+            return userCommandName;
+        }
+
+        public UserThread getUserThread() {
+            return userThread;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+    }
+
 
     public Server(int port) {
         this.port = port;
@@ -53,6 +111,9 @@ public class Server {
 
     Set<String> getUserNames() {
         return this.userNames;
+    }
+    Set<User> getUsers() {
+        return this.users;
     }
     Set<Deck> getDecks() {
         return this.decks;
@@ -100,6 +161,7 @@ public class Server {
         for (UserThread aUser : userThreads) {
             if (aUser.equals(toUser)) {
                 aUser.sendMessage(message);
+                break;
             }
         }
     }
@@ -107,8 +169,14 @@ public class Server {
     /**
      * Stores username of the newly connected client.
      */
-    void addUserName(String userName) {
+    void addUserName(String userName, UserThread thread) {
         userNames.add(userName);
+        for (User user : users) {
+            if (user.userThread.equals(thread)) {
+                user.userName = userName;
+                user.userCommandName = user.userCommandName.concat(userName);
+            }
+        }
     }
 
     /**
@@ -118,6 +186,14 @@ public class Server {
         boolean removed = userNames.remove(userName);
         if (removed) {
             userThreads.remove(aUser);
+
+            for (User user : users) {
+                if (user.userThread.equals(aUser)) {
+                    users.remove(user);
+                    break;
+                }
+            }
+
             serverLogger.info("The user " + userName + " quitted");
         }
     }
@@ -138,6 +214,7 @@ public class Server {
 
                 UserThread newUser = new UserThread(socket, this, serverLogger);
                 userThreads.add(newUser);
+                users.add(new User(newUser, ""));
                 newUser.start();
             }
 

@@ -3,6 +3,7 @@ package com.company;
 import org.apache.log4j.Logger;
 
 import java.io.Console;
+import java.util.Set;
 
 
 public class ServerThread extends Thread {
@@ -22,43 +23,60 @@ public class ServerThread extends Thread {
         return this.ifClose;
     }
 
+    /**
+     * Handles server action
+     */
+    void action(Server.Split text) {
+        switch (text.getCommand()) {
+            case "\\help" -> stLogger.info("""
+                        ###########################################################
+                        commands:\s
+                        \\help - print all commands
+                        \\showusers - print all users
+                        \\showdecks - print all running decks
+                        \\msgall - msg all connected users
+                        \\<username> - msg specified user
+                        \\CLOSE - exit
+                        ###########################################################""");
+            case "\\showusers" -> {
+                Set<Server.User> users = server.getUsers();
+                for (Server.User us : users) {
+                    stLogger.info(us.getUserName() + " " + us.getUserThread());
+                }
+            }
+            case "\\showdecks" -> stLogger.info(server.getDecks().toString());
+            case "\\msgall" -> server.broadcast("[SERVER]: " + text.getMessage(), null);
+            default -> {
+                boolean done = false;
+                for (Server.User us : server.getUsers()) {
+                    if (us.getUserCommandName().equals(text.getCommand())) {
+                        done = true;
+                        server.writeToUser("[SERVER]: " + text.getMessage(), us.getUserThread());
+                        break;
+                    }
+                }
+                if (!done) {
+                    stLogger.info("unknown command!");
+                }
+            }
+        }
+    }
+
     @Override
     public void run() {
 
-        String text;
+        Server.Split text;
         Console console = System.console();
 
         while (true) {
 
-            text = console.readLine();
+            text = new Server.Split(console.readLine());
 
-            if (text.equals("\\bye")) {
+            if (text.getCommand().equals("\\CLOSE")) {
                 break;
             }
 
-            if (text.contains("\\help")) {
-                stLogger.info("""
-                        ###########################################################
-                        commands:\s
-                        \\show users - print all users
-                        \\show decks - print all running decks
-                        \\msg all - msg all connected users
-                        \\bye - exit
-                        ###########################################################
-                        """);
-            }
-            else if (text.contains("\\show users")) {
-                stLogger.info(server.getUserNames().toString());
-            }
-            else if (text.contains("\\show decks")) {
-                stLogger.info(server.getDecks().toString());
-            }
-            else if (text.contains("\\msg all")) {
-                server.broadcast(text, null);
-            }
-            else {
-                stLogger.info("unknown command!");
-            }
+            action(text);
         }
 
         ifClose = true;

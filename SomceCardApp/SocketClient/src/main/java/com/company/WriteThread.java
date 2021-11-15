@@ -48,7 +48,7 @@ public class WriteThread extends Thread {
             text = text.replace("\n", "").replace("\r", "");
             writer.println(text);
 
-        } while (!text.equals("bye"));
+        } while (!text.equals("\\bye"));
 
         try {
             socket.close();
