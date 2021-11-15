@@ -12,6 +12,8 @@
         <module>MyDeck</module>
         <module>CommonUtil</module>
         <module>MainApp</module>
+        <module>SocketClient</module>
+        <module>SocketServer</module>
     </modules>
 
     <name>SomceCardApp</name>
@@ -57,6 +59,7 @@
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -73,6 +76,30 @@
                     </archive>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <createSourcesJar>true</createSourcesJar>
+                    <minimizeJar>false</minimizeJar>
+                    <artifactSet>
+                        <includes>
+                        </includes>
+                        <excludes>
+                        </excludes>
+                    </artifactSet>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>

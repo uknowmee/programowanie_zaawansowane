@@ -200,7 +200,6 @@ public class Deck {
 
     /**
      * Method is used by setCards method
-     *
      * @return ArrayList of all cards
      */
     public ArrayList<Card> shuffle() {
@@ -226,7 +225,6 @@ public class Deck {
 
     /**
      * Method is used by setCards method
-     *
      * @return ArrayList of all cards
      */
     public ArrayList<Card> fabric() {
