@@ -31,14 +31,14 @@ public class UserThread extends Thread {
 
     /**
      * Handles user action
+     *
+     * @param userName      String - user name
+     * @param clientMessage - client input
      */
-    void action() {
-        Server.Container container;
-        container = server.queuePopFront();
+    void action(String userName, String clientMessage) {
+        Server.Split split = new Server.Split(clientMessage);
 
-        Server.Split split = new Server.Split(container.getServerText());
-
-        utLogger.info(container.getUserName() + ": " + split.getCommand() + " " + split.getMessage());
+        utLogger.info(userName + ": " + split.getCommand() + " " + split.getMessage());
 
         switch (split.getCommand()) {
             case "\\help" -> server.writeToUser("""
@@ -51,33 +51,36 @@ public class UserThread extends Thread {
                     \\<username> - msg specified user
                     \\bye - exit
                     ###########################################################
-                    """, container.getUserThread());
-            case "\\showusers" -> server.writeToUser(server.getUserNames().toString(), container.getUserThread());
-            case "\\showdecks" -> server.writeToUser(server.getDecks().toString(), container.getUserThread());
+                    """, this);
+            case "\\showusers" -> server.writeToUser(server.getUserNames().toString(), this);
+            case "\\showdecks" -> server.writeToUser(server.getDecks().toString(), this);
             case "\\msgall" -> server.broadcast(
-                    container.getUserName() + ": " + split.getMessage(), container.getUserThread());
+                    userName + ": " + split.getMessage(), this);
             default -> {
                 boolean done = false;
-                if (!"\\".concat(container.getUserName()).equals(container.getUserCommandName())) {
-                    server.writeToUser("unknown command!", container.getUserThread());
+                if (split.getCommand().equals(userName)) {
+                    server.writeToUser("unknown command!", this);
                     break;
                 }
                 else {
                     for (Server.User user : server.getUsers()) {
                         if (user.getUserCommandName().equals(split.getCommand())) {
-                            server.writeToUser(container.getUserName() + ": " + split.getMessage(), user.getUserThread());
+                            server.writeToUser(userName + ": " + split.getMessage(), user.getUserThread());
                             done = true;
                             break;
                         }
                     }
                 }
                 if (!done) {
-                    server.writeToUser("unknown command!", container.getUserThread());
+                    server.writeToUser("unknown command!", this);
                 }
             }
         }
     }
 
+    /**
+     * Reads client input Infinite loop and handles it in {@link #action(String, String)}
+     */
     @Override
     public void run() {
         try {
@@ -88,7 +91,14 @@ public class UserThread extends Thread {
             writer = new PrintWriter(output, true);
 
             String userName = reader.readLine();
+
+            int i=1;
+            while (server.getUserNames().contains(userName)) {
+                userName = userName.concat(String.valueOf(i));
+                i += 1;
+            }
             server.addUserName(userName, this);
+            sendMessage("Your userName is: " + userName);
 
             String serverMessage;
             String clientMessage;
@@ -97,16 +107,14 @@ public class UserThread extends Thread {
             do {
                 clientMessage = reader.readLine();
 
-                server.queuePushBack(userName, this, clientMessage);
-                if (!server.queueIsEmpty()) {
-                    action();
-                }
+                action(userName, clientMessage);
+
             } while (!clientMessage.equals("\\bye"));
 
             server.removeUser(userName, this);
             socket.close();
 
-            serverMessage = userName + " has quitted.";
+            serverMessage = userName + " has quit.";
             server.broadcast(serverMessage, this);
 
         } catch (IOException ex) {

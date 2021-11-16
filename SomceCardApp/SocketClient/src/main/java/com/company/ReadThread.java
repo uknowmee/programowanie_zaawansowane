@@ -6,8 +6,8 @@ import java.io.*;
 import java.net.*;
 
 /**
- * This thread is responsible for reading server's input and printing it
- * to the console.
+ * This thread is responsible for reading server's
+ * input and printing it to the user console.
  * It runs in an infinite loop until the client disconnects from the server.
  */
 public class ReadThread extends Thread {
@@ -17,6 +17,13 @@ public class ReadThread extends Thread {
     private final Logger rtLogger;
 
 
+    /**
+     * Base constructor
+     *
+     * @param socket {@link Socket} - connected socket
+     * @param client {@link Client} - owner of the thread
+     * @param logger {@link Logger} - prints server input and log stuff if necessary
+     */
     public ReadThread(Socket socket, Client client, Logger logger) {
         this.client = client;
         this.rtLogger = logger;
@@ -30,8 +37,12 @@ public class ReadThread extends Thread {
         }
     }
 
+    /**
+     * Infinite loop printing server input to user console
+     */
     @Override
     public void run() {
+
         while (true) {
             try {
                 String response = reader.readLine();

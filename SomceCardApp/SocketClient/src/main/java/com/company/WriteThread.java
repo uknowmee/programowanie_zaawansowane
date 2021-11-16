@@ -6,8 +6,8 @@ import java.io.*;
 import java.net.*;
 
 /**
- * This thread is responsible for reading user's input and send it
- * to the server.
+ * This thread is responsible for reading user's
+ * input and send it to the server.
  * It runs in an infinite loop until the user types 'bye' to quit.
  */
 public class WriteThread extends Thread {
@@ -17,7 +17,13 @@ public class WriteThread extends Thread {
     private final Client client;
     private final Logger wtLogger;
 
-
+    /**
+     * Base constructor
+     *
+     * @param socket {@link Socket} - connected socket
+     * @param client {@link Client} - owner of the thread
+     * @param logger {@link Logger} - prints server input and log stuff if necessary
+     */
     public WriteThread(Socket socket, Client client, Logger logger) {
         this.socket = socket;
         this.client = client;
@@ -32,6 +38,9 @@ public class WriteThread extends Thread {
         }
     }
 
+    /**
+     * Infinite loop writing the user input to server console
+     */
     @Override
     public void run() {
 

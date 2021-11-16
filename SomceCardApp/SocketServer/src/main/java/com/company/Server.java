@@ -12,63 +12,79 @@ import java.util.*;
  * This is the chat server program.
  */
 public class Server {
-
     private final int port;
-
     private final Set<String> userNames = new HashSet<>();
     private final Set<UserThread> userThreads = new HashSet<>();
-
     private final Set<User> users = new HashSet<>();
     private final Set<Deck> decks = new HashSet<>();
-
-    private final ArrayList<Container> queue = new ArrayList<>();
     static final Logger serverLogger = Logger.getLogger(Server.class.getName());
 
-    static class Container{
-        private String userName = "";
-        private String userCommandName = "";
-        private String serverText = "";
-        private UserThread userThread;
+    /**
+     * Class describing connected user
+     */
+    static class User {
+        private final UserThread userThread;
+        private String userName;
+        private String userCommandName;
 
-        public Container(){}
-
-        public Container(String userName, UserThread userThread, String serverText){
+        /**
+         * Base constructor
+         *
+         * @param userThreads {@link UserThread} - thread running on server which handles user
+         * @param userName    {@link String} - username
+         */
+        User(UserThread userThreads, String userName) {
+            this.userThread = userThreads;
             this.userName = userName;
-            this.userCommandName = "\\".concat(userName);
-            this.userThread = userThread;
-            this.serverText = serverText;
+            this.userCommandName = "\\";
         }
 
+        /**
+         * Returns username with "\" at the beginning
+         *
+         * @return {@link User#userCommandName} String - used when writing to user
+         */
         public String getUserCommandName() {
             return userCommandName;
         }
 
-        public String getUserName() {
-            return userName;
-        }
-
-        public String getServerText() {
-            return serverText;
-        }
-
+        /**
+         * Returns user thread
+         *
+         * @return {@link #userThread} UserThread - thread running on server which handles user
+         */
         public UserThread getUserThread() {
             return userThread;
         }
+
+        /**
+         * Returns username
+         *
+         * @return {@link #userName} String - username
+         */
+        public String getUserName() {
+            return userName;
+        }
     }
 
+    /**
+     * Helper class which might contain:<br>
+     * user command and message got user input in {@link UserThread} <br>
+     * server command and message got from console in {@link ServerThread}<br>
+     * while handling their single String input
+     */
     static class Split {
         private final String command;
         private String message;
 
-        public String getCommand() {
-            return command;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public Split(String text){
+        /**
+         * Base constructor
+         *
+         * @param text {@link String} - users input will be split to:<br>
+         *             {@link #command} - users command<br>
+         *             {@link #message} - users message
+         */
+        public Split(String text) {
             String[] splitText = text.split(" ");
 
             this.command = splitText[0];
@@ -78,73 +94,67 @@ public class Server {
                 message = message.concat(splitText[i] + " ");
             }
         }
-    }
 
-    static class User{
-        private final UserThread userThread;
-        private String userName;
-        private String userCommandName;
-
-        User(UserThread userThreads, String userNames) {
-            this.userThread = userThreads;
-            this.userName = userNames;
-            this.userCommandName = "\\";
+        /**
+         * Returns user command
+         *
+         * @return {@link #command} String - command of the user
+         */
+        public String getCommand() {
+            return command;
         }
 
-        public String getUserCommandName() {
-            return userCommandName;
-        }
-
-        public UserThread getUserThread() {
-            return userThread;
-        }
-
-        public String getUserName() {
-            return userName;
+        /**
+         * Returns user command
+         *
+         * @return {@link #message} String - message of the user
+         */
+        public String getMessage() {
+            return message;
         }
     }
 
-
+    /**
+     * Base constructor
+     *
+     * @param port {@link Integer} - port of the host
+     */
     public Server(int port) {
         this.port = port;
     }
 
+    /**
+     * Return usernames
+     *
+     * @return {@link #userNames} Set - names of the connected users
+     */
     Set<String> getUserNames() {
         return this.userNames;
     }
+
+    /**
+     * Return users
+     *
+     * @return {@link #users} Set - connected users
+     */
     Set<User> getUsers() {
         return this.users;
     }
+
+    /**
+     * Return decks
+     *
+     * @return {@link #decks} Set - existing decks
+     */
     Set<Deck> getDecks() {
         return this.decks;
-    }
-    ArrayList<Container> getQueue() {
-        return this.queue;
-    }
-
-    /**
-     * Keeps messages from users to server
-     */
-    void queuePushBack(String userName, UserThread userThread, String command){
-        queue.add(new Container(userName, userThread, command));
-    }
-
-    /**
-     * Returns true if queue is empty else return false
-     */
-    boolean queueIsEmpty() {
-        return queue.isEmpty();
-    }
-
-    /**
-     * Pops first message from queue
-     */
-    Container queuePopFront(){
-        return queue.remove(0);
     }
 
     /**
      * Delivers a message from one user to others (broadcasting)
+     *
+     * @param message     String - Client or Server message
+     * @param excludeUser UserThread - user which won't see message
      */
     void broadcast(String message, UserThread excludeUser) {
         for (UserThread aUser : userThreads) {
@@ -156,6 +166,9 @@ public class Server {
 
     /**
      * Delivers a message to user
+     *
+     * @param message     String - Client or Server message
+     * @param toUser UserThread - user which will see message
      */
     void writeToUser(String message, UserThread toUser) {
         for (UserThread aUser : userThreads) {
@@ -167,7 +180,10 @@ public class Server {
     }
 
     /**
-     * Stores username of the newly connected client.
+     * Stores username of the newly connected client then search through {@link #users} and update it.
+     *
+     * @param userName String - name which will be added to {@link #userNames}
+     * @param thread UserThread - thread which will be added to {@link #userThreads}
      */
     void addUserName(String userName, UserThread thread) {
         userNames.add(userName);
@@ -180,7 +196,13 @@ public class Server {
     }
 
     /**
-     * When a client is disconneted, removes the associated username and UserThread
+     * When a client is disconnected, removes the associated<br>
+     * username,<br>
+     * UserThread,<br>
+     * user (from {@link #users})
+     *
+     * @param userName String - username to be removed from {@link #userNames}
+     * @param aUser UserThread - thread to be removed from {@link #userThreads}
      */
     void removeUser(String userName, UserThread aUser) {
         boolean removed = userNames.remove(userName);
@@ -194,10 +216,15 @@ public class Server {
                 }
             }
 
-            serverLogger.info("The user " + userName + " quitted");
+            serverLogger.info("The user " + userName + " quit");
         }
     }
 
+    /**
+     * Method which waits for connection from client (Infinite loop)<br>
+     * if succeed it start thread to handle client:<br>
+     * {@link ServerThread#ServerThread(Logger, Server)}
+     */
     public void execute() {
         try (ServerSocket serverSocket = new ServerSocket(this.port)) {
 
@@ -224,8 +251,12 @@ public class Server {
         }
     }
 
+    /**
+     * Main class making one Server object and starting {@link #execute()} method
+     *
+     * @param args String - is specified while starting program
+     */
     public static void main(String[] args) {
-
         PropertyConfigurator.configure("./CommonUtil/src/main/resources/log4j.properties");
 
         int port = 8987;

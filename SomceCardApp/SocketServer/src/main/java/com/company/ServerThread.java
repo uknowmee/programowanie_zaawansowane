@@ -5,39 +5,52 @@ import org.apache.log4j.Logger;
 import java.io.Console;
 import java.util.Set;
 
-
+/**
+ * This thread handles server console.
+ */
 public class ServerThread extends Thread {
-
     private boolean ifClose;
     private final Logger stLogger;
     private final Server server;
 
-
+    /**
+     * Base constructor
+     *
+     * @param logger {@link Logger} - prints server input and log stuff if necessary
+     * @param server {@link Server} - server of which console will be handled
+     */
     public ServerThread(Logger logger, Server server) {
         this.ifClose = false;
         this.stLogger = logger;
         this.server = server;
     }
 
+    /**
+     * Return ifClose
+     *
+     * @return {@link #ifClose} Boolean - true if we should close a server else false
+     */
     public boolean info() {
         return this.ifClose;
     }
 
     /**
      * Handles server action
+     *
+     * @param text String - server input
      */
     void action(Server.Split text) {
         switch (text.getCommand()) {
             case "\\help" -> stLogger.info("""
-                        ###########################################################
-                        commands:\s
-                        \\help - print all commands
-                        \\showusers - print all users
-                        \\showdecks - print all running decks
-                        \\msgall - msg all connected users
-                        \\<username> - msg specified user
-                        \\CLOSE - exit
-                        ###########################################################""");
+                    ###########################################################
+                    commands:\s
+                    \\help - print all commands
+                    \\showusers - print all users
+                    \\showdecks - print all running decks
+                    \\msgall - msg all connected users
+                    \\<username> - msg specified user
+                    \\CLOSE - exit
+                    ###########################################################""");
             case "\\showusers" -> {
                 Set<Server.User> users = server.getUsers();
                 for (Server.User us : users) {
@@ -62,6 +75,9 @@ public class ServerThread extends Thread {
         }
     }
 
+    /**
+     * Infinite loop reading the server input
+     */
     @Override
     public void run() {
 

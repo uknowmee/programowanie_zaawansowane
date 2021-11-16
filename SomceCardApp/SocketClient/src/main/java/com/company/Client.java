@@ -9,7 +9,6 @@ import java.net.*;
 
 /**
  * This is the chat client program.
- * Type 'bye' to terminte the program.
  */
 public class Client {
 
@@ -18,20 +17,42 @@ public class Client {
     private String userName;
     static final Logger clientLogger = Logger.getLogger(Client.class.getName());
 
+    /**
+     * Base constructor
+     *
+     * @param hostname {@link String} - the host name
+     * @param port     {@link Integer} - port of the host
+     */
     public Client(String hostname, int port) {
         this.hostname = hostname;
         this.port = port;
         this.userName = "";
     }
 
-    String getUserName() {
+    /**
+     * Return username
+     *
+     * @return {@link #userName} String - name of the user
+     */
+    public String getUserName() {
         return this.userName;
     }
 
-    void setUserName(String userName) {
+    /**
+     * Set {@link #userName} to specified name
+     *
+     * @param userName String - username
+     */
+    public void setUserName(String userName) {
         this.userName = userName;
     }
 
+    /**
+     * Method which tries to connect with server<br>
+     * if succeed it start two threads:<br>
+     * {@link ReadThread#ReadThread(Socket, Client, Logger)} - read server input<br>
+     * {@link WriteThread#WriteThread(Socket, Client, Logger)} - read user input
+     */
     public void execute() {
         try {
             Socket socket = new Socket(hostname, port);
@@ -49,6 +70,11 @@ public class Client {
 
     }
 
+    /**
+     * Main class making one Client object and starting {@link #execute()} method
+     *
+     * @param args String - is specified while starting program
+     */
     public static void main(String[] args) {
 
         PropertyConfigurator.configure("./CommonUtil/src/main/resources/log4j.properties");
