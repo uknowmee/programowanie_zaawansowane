@@ -36,16 +36,6 @@
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-        </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.sonarsource.scanner.maven</groupId>-->
-<!--            <artifactId>sonar-maven-plugin</artifactId>-->
-<!--            <version>3.9.1.2184</version>-->
-<!--        </dependency>-->
     </dependencies>
 
     <distributionManagement>
@@ -62,25 +52,8 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-
-<!--                &lt;!&ndash;                &lt;!&ndash; Optional URL to server. Default value is http://localhost:9000 &ndash;&gt;&ndash;&gt;-->
-<!--                &lt;!&ndash;                <sonar.host.url>&ndash;&gt;-->
-<!--                &lt;!&ndash;                    http://localhost:9000&ndash;&gt;-->
-<!--                &lt;!&ndash;                </sonar.host.url>&ndash;&gt;-->
-<!--                &lt;!&ndash;                <sonar.login>&ndash;&gt;-->
-<!--                &lt;!&ndash;                    2f117542e5efb4daea31185d91da19cb9e936d0f&ndash;&gt;-->
-<!--                &lt;!&ndash;                </sonar.login>&ndash;&gt;-->
-
-<!--                <sonar.SONAR_TOKEN>&ndash;&gt;-->
-<!--                    574c241347a153a73a8be18e60f34cbc0978eb29-->
-<!--                </sonar.SONAR_TOKEN>-->
-<!--                <sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
-<!--                <sonar.organization>uknowmee</sonar.organization>-->
-<!--                <sonar.projectKey>assd</sonar.projectKey>-->
-
                 <sonar.organization>uknowmee</sonar.organization>
                 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-
             </properties>
         </profile>
     </profiles>
@@ -127,12 +100,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-<!--            <plugin>-->
-<!--                <groupId>org.sonarsource.scanner.maven</groupId>-->
-<!--                <artifactId>sonar-maven-plugin</artifactId>-->
-<!--                <version>3.9.1.2184</version>-->
-<!--            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
