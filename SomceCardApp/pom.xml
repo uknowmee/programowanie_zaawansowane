@@ -17,16 +17,7 @@
     </modules>
 
     <name>SomceCardApp</name>
-    <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <sonar.organization>uknowmee</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -50,6 +41,11 @@
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
         </dependency>
+        <dependency>
+            <groupId>org.sonarsource.scanner.maven</groupId>
+            <artifactId>sonar-maven-plugin</artifactId>
+            <version>3.9.1.2184</version>
+        </dependency>
     </dependencies>
 
     <distributionManagement>
@@ -58,6 +54,24 @@
             <url>scp://www.yourcompany.com/www/docs/project/</url>
         </site>
     </distributionManagement>
+
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <!-- Optional URL to server. Default value is http://localhost:9000 -->
+                <sonar.host.url>
+                    http://localhost:9000
+                </sonar.host.url>
+                <sonar.login>
+                    2f117542e5efb4daea31185d91da19cb9e936d0f
+                </sonar.login>
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -100,6 +114,12 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
             </plugin>
 
             <plugin>

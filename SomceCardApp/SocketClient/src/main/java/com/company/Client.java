@@ -39,6 +39,24 @@ public class Client {
     }
 
     /**
+     * Return host name
+     *
+     * @return {@link #hostname} String - name of the host
+     */
+    public String getHostname() {
+        return hostname;
+    }
+
+    /**
+     * Return host port
+     *
+     * @return {@link #port} String - port of the host
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
      * Set {@link #userName} to specified name
      *
      * @param userName String - username
