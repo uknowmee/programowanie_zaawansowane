@@ -6,7 +6,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Class testing Client
+ * Class testing Client - without sockets
  */
 public class ClientTest {
 
