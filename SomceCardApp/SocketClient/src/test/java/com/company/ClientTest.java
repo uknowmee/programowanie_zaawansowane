@@ -5,6 +5,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * Class testing Client
+ */
 public class ClientTest {
 
     @Test
