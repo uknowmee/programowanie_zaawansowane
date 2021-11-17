@@ -62,13 +62,25 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <!-- Optional URL to server. Default value is http://localhost:9000 -->
-                <sonar.host.url>
-                    http://localhost:9000
-                </sonar.host.url>
-                <sonar.login>
-                    2f117542e5efb4daea31185d91da19cb9e936d0f
-                </sonar.login>
+
+                <!--                &lt;!&ndash; Optional URL to server. Default value is http://localhost:9000 &ndash;&gt;-->
+                <!--                <sonar.host.url>-->
+                <!--                    http://localhost:9000-->
+                <!--                </sonar.host.url>-->
+                <!--                <sonar.login>-->
+                <!--                    2f117542e5efb4daea31185d91da19cb9e936d0f-->
+                <!--                </sonar.login>-->
+
+                <!--                <sonar.SONAR_TOKEN>&ndash;&gt;-->
+                <!--                    574c241347a153a73a8be18e60f34cbc0978eb29-->
+                <!--                </sonar.SONAR_TOKEN>-->
+                <!--                <sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
+                <!--                <sonar.organization>uknowmee</sonar.organization>-->
+                <!--                <sonar.projectKey>assd</sonar.projectKey>-->
+
+                <sonar.organization>uknowmee</sonar.organization>
+                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
             </properties>
         </profile>
     </profiles>
