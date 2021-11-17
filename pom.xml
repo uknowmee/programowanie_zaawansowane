@@ -55,13 +55,13 @@
         </site>
     </distributionManagement>
 
-<!--    <profiles>-->
-<!--        <profile>-->
-<!--            <id>sonar</id>-->
-<!--            <activation>-->
-<!--                <activeByDefault>true</activeByDefault>-->
-<!--            </activation>-->
-<!--            <properties>-->
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
 
 <!--                &lt;!&ndash;                &lt;!&ndash; Optional URL to server. Default value is http://localhost:9000 &ndash;&gt;&ndash;&gt;-->
 <!--                &lt;!&ndash;                <sonar.host.url>&ndash;&gt;-->
@@ -78,12 +78,12 @@
 <!--                <sonar.organization>uknowmee</sonar.organization>-->
 <!--                <sonar.projectKey>assd</sonar.projectKey>-->
 
-<!--&lt;!&ndash;                <sonar.organization>uknowmee</sonar.organization>&ndash;&gt;-->
-<!--&lt;!&ndash;                <sonar.host.url>https://sonarcloud.io</sonar.host.url>&ndash;&gt;-->
+                <sonar.organization>uknowmee</sonar.organization>
+                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-<!--            </properties>-->
-<!--        </profile>-->
-<!--    </profiles>-->
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
