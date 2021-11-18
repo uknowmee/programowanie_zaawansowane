@@ -1,6 +1,5 @@
 package com.company;
 
-import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -10,7 +9,7 @@ import java.net.Socket;
 import static org.junit.Assert.*;
 
 /**
- * Class testing ReadThread - without sockets
+ * Class testing ReadThread
  */
 public class ReadThreadTest {
 

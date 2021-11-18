@@ -91,6 +91,10 @@ public class Server {
             this.message = "";
 
             for (int i = 1; i < splitText.length; i++) {
+                if (i == splitText.length - 1) {
+                    message = message.concat(splitText[i]);
+                    break;
+                }
                 message = message.concat(splitText[i] + " ");
             }
         }
@@ -126,6 +130,15 @@ public class Server {
     /**
      * Return usernames
      *
+     * @return {@link #port} Int - port of the server
+     */
+    int getPort() {
+        return port;
+    }
+
+    /**
+     * Return usernames
+     *
      * @return {@link #userNames} Set - names of the connected users
      */
     Set<String> getUserNames() {
@@ -139,6 +152,15 @@ public class Server {
      */
     Set<User> getUsers() {
         return this.users;
+    }
+
+    /**
+     * Return user threads
+     *
+     * @return {@link #userThreads} Set - connected user threads
+     */
+    public Set<UserThread> getUserThreads() {
+        return userThreads;
     }
 
     /**
@@ -167,8 +189,8 @@ public class Server {
     /**
      * Delivers a message to user
      *
-     * @param message     String - Client or Server message
-     * @param toUser UserThread - user which will see message
+     * @param message String - Client or Server message
+     * @param toUser  UserThread - user which will see message
      */
     void writeToUser(String message, UserThread toUser) {
         for (UserThread aUser : userThreads) {
@@ -180,10 +202,19 @@ public class Server {
     }
 
     /**
+     * Stores userThread of the newly connected client.
+     *
+     * @param newUser UserThread - thread which will be added to {@link #userThreads}
+     */
+    void addUserThread(UserThread newUser) {
+        userThreads.add(newUser);
+    }
+
+    /**
      * Stores username of the newly connected client then search through {@link #users} and update it.
      *
      * @param userName String - name which will be added to {@link #userNames}
-     * @param thread UserThread - thread which will be added to {@link #userThreads}
+     * @param thread   UserThread - thread which will be added to {@link #userThreads}
      */
     void addUserName(String userName, UserThread thread) {
         userNames.add(userName);
@@ -196,13 +227,22 @@ public class Server {
     }
 
     /**
+     * Stores userThread of the newly connected client.
+     *
+     * @param newUser UserThread - thread which will be added to {@link #userThreads}
+     */
+    void addUser(UserThread newUser) {
+        users.add(new User(newUser, ""));
+    }
+
+    /**
      * When a client is disconnected, removes the associated<br>
      * username,<br>
      * UserThread,<br>
      * user (from {@link #users})
      *
      * @param userName String - username to be removed from {@link #userNames}
-     * @param aUser UserThread - thread to be removed from {@link #userThreads}
+     * @param aUser    UserThread - thread to be removed from {@link #userThreads}
      */
     void removeUser(String userName, UserThread aUser) {
         boolean removed = userNames.remove(userName);
@@ -235,13 +275,13 @@ public class Server {
             ServerThread stop = new ServerThread(serverLogger, this);
             stop.start();
 
-            while (!stop.info()) {
+            while (!stop.isIfClose()) {
                 Socket socket = serverSocket.accept();
                 serverLogger.info("New user connected");
 
                 UserThread newUser = new UserThread(socket, this, serverLogger);
-                userThreads.add(newUser);
-                users.add(new User(newUser, ""));
+                this.addUserThread(newUser);
+                this.addUser(newUser);
                 newUser.start();
             }
 

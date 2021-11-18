@@ -35,7 +35,7 @@ public class Client {
      * @return {@link #userName} String - name of the user
      */
     public String getUserName() {
-        return this.userName;
+        return userName;
     }
 
     /**

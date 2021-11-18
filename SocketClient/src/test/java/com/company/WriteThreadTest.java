@@ -10,7 +10,7 @@ import java.net.Socket;
 import static org.junit.Assert.*;
 
 /**
- * Class testing WriteThread - without sockets
+ * Class testing WriteThread
  */
 public class WriteThreadTest {
 

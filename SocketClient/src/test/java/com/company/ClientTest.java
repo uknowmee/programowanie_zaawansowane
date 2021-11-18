@@ -1,12 +1,11 @@
 package com.company;
 
-import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 /**
- * Class testing Client - without sockets
+ * Class testing Client
  */
 public class ClientTest {
 

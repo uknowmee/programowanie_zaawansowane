@@ -26,12 +26,30 @@ public class ServerThread extends Thread {
     }
 
     /**
+     * Return owners logger
+     *
+     * @return {@link #stLogger} Logger - owners logger
+     */
+    public Logger getStLogger() {
+        return stLogger;
+    }
+
+    /**
+     * Return owner
+     *
+     * @return {@link #server} Server - server which server thread is managing
+     */
+    public Server getServer() {
+        return server;
+    }
+
+    /**
      * Return ifClose
      *
      * @return {@link #ifClose} Boolean - true if we should close a server else false
      */
-    public boolean info() {
-        return this.ifClose;
+    public boolean isIfClose() {
+        return ifClose;
     }
 
     /**

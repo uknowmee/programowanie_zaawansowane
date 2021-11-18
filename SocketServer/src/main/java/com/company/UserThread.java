@@ -29,6 +29,33 @@ public class UserThread extends Thread {
     }
 
     /**
+     * Return owner
+     *
+     * @return {@link Server} Server - server which server thread is managing
+     */
+    public Server getServer() {
+        return server;
+    }
+
+    /**
+     * Return connection socket
+     *
+     * @return {@link #socket} Socket - socket of connection with client
+     */
+    public Socket getSocket() {
+        return socket;
+    }
+
+    /**
+     * Return owners logger
+     *
+     * @return {@link #utLogger} Logger - owners logger
+     */
+    public Logger getUtLogger() {
+        return utLogger;
+    }
+
+    /**
      * Sends a message to the client.
      *
      * @param message String - message to client
