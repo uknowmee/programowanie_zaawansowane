@@ -16,7 +16,6 @@ public class ReadThread extends Thread {
     private final Client client;
     private final Logger rtLogger;
 
-
     /**
      * Base constructor
      *
@@ -35,6 +34,24 @@ public class ReadThread extends Thread {
             rtLogger.info("Error getting input stream: " + ex.getMessage());
             ex.printStackTrace();
         }
+    }
+
+    /**
+     * Return owner of the reader (client)
+     *
+     * @return {@link #client} Client - owner of the reader
+     */
+    public Client getClient() {
+        return client;
+    }
+
+    /**
+     * Return owners logger
+     *
+     * @return {@link #rtLogger} Logger - owners logger
+     */
+    public Logger getRtLogger() {
+        return rtLogger;
     }
 
     /**

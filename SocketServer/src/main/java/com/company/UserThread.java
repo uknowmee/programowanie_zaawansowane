@@ -30,6 +30,8 @@ public class UserThread extends Thread {
 
     /**
      * Sends a message to the client.
+     *
+     * @param message String - message to client
      */
     void sendMessage(String message) {
         writer.println(message);

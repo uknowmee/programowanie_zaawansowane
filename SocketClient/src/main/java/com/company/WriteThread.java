@@ -38,6 +38,28 @@ public class WriteThread extends Thread {
         }
     }
 
+    public Socket getSocket() {
+        return socket;
+    }
+
+    /**
+     * Return owner of the reader (client)
+     *
+     * @return {@link #client} Client - owner of the reader
+     */
+    public Client getClient() {
+        return client;
+    }
+
+    /**
+     * Return owners logger
+     *
+     * @return {@link #wtLogger} Logger - owners logger
+     */
+    public Logger getWtLogger() {
+        return wtLogger;
+    }
+
     /**
      * Infinite loop writing the user input to server console
      */
