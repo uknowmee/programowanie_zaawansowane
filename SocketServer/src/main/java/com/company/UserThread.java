@@ -58,7 +58,7 @@ public class UserThread extends Thread {
                     userName + ": " + split.getMessage(), this);
             default -> {
                 boolean done = false;
-                if (split.getCommand().equals(userName)) {
+                if (split.getCommand().equals("\\".concat(userName))) {
                     server.writeToUser("unknown command!", this);
                     break;
                 }

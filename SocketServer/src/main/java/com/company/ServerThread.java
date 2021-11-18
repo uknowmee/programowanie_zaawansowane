@@ -35,6 +35,37 @@ public class ServerThread extends Thread {
     }
 
     /**
+     * Print users to server console
+     */
+    public void showUsers(){
+        Set<Server.User> users = server.getUsers();
+        if (users.isEmpty()) {
+            stLogger.info("[]");
+        }
+        else if (users.size() == 1) {
+            for (Server.User us : users) {
+                stLogger.info("[" + us.getUserName() + " " + us.getUserThread() + "]");
+            }
+        }
+        else {
+            int i = 0;
+            for (Server.User us : users) {
+                if (i == 0) {
+                    stLogger.info("[" + us.getUserName() + " " + us.getUserThread());
+                    i++;
+                }
+                else if (i == users.size() - 1) {
+                    stLogger.info(us.getUserName() + " " + us.getUserThread() + "]");
+                }
+                else {
+                    stLogger.info(us.getUserName() + " " + us.getUserThread());
+                    i++;
+                }
+            }
+        }
+    }
+
+    /**
      * Handles server action
      *
      * @param text String - server input
@@ -51,12 +82,7 @@ public class ServerThread extends Thread {
                     \\<username> - msg specified user
                     \\CLOSE - exit
                     ###########################################################""");
-            case "\\showusers" -> {
-                Set<Server.User> users = server.getUsers();
-                for (Server.User us : users) {
-                    stLogger.info(us.getUserName() + " " + us.getUserThread());
-                }
-            }
+            case "\\showusers" -> showUsers();
             case "\\showdecks" -> stLogger.info(server.getDecks().toString());
             case "\\msgall" -> server.broadcast("[SERVER]: " + text.getMessage(), null);
             default -> {
