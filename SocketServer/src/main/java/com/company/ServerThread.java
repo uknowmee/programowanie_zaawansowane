@@ -35,9 +35,25 @@ public class ServerThread extends Thread {
     }
 
     /**
+     * Print commands to server console
+     */
+    public void showCommands() {
+        stLogger.info("""
+                ###########################################################
+                commands:\s
+                \\help - print all commands
+                \\showusers - print all users
+                \\showdecks - print all running decks
+                \\msgall - msg all connected users
+                \\<username> - msg specified user
+                \\CLOSE - exit
+                ###########################################################""");
+    }
+
+    /**
      * Print users to server console
      */
-    public void showUsers(){
+    public void showUsers() {
         Set<Server.User> users = server.getUsers();
         if (users.isEmpty()) {
             stLogger.info("[]");
@@ -72,16 +88,7 @@ public class ServerThread extends Thread {
      */
     void action(Server.Split text) {
         switch (text.getCommand()) {
-            case "\\help" -> stLogger.info("""
-                    ###########################################################
-                    commands:\s
-                    \\help - print all commands
-                    \\showusers - print all users
-                    \\showdecks - print all running decks
-                    \\msgall - msg all connected users
-                    \\<username> - msg specified user
-                    \\CLOSE - exit
-                    ###########################################################""");
+            case "\\help" -> showCommands();
             case "\\showusers" -> showUsers();
             case "\\showdecks" -> stLogger.info(server.getDecks().toString());
             case "\\msgall" -> server.broadcast("[SERVER]: " + text.getMessage(), null);

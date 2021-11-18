@@ -15,7 +15,13 @@ public class UserThread extends Thread {
     private PrintWriter writer;
     private final Logger utLogger;
 
-
+    /**
+     * Base constructor
+     *
+     * @param socket {@link Socket} - socket of connection
+     * @param logger {@link Logger} - prints server input and log stuff if necessary
+     * @param server {@link Server} - server of which console will be handled
+     */
     public UserThread(Socket socket, Server server, Logger logger) {
         this.socket = socket;
         this.server = server;
@@ -30,6 +36,23 @@ public class UserThread extends Thread {
     }
 
     /**
+     * Print commands to server console
+     */
+    public void showCommands() {
+        server.writeToUser("""
+                ###########################################################
+                commands:\s
+                \\help - print all commands
+                \\showusers - print all users
+                \\showdecks - print all running decks
+                \\msgall - msg all connected users
+                \\<username> - msg specified user
+                \\bye - exit
+                ###########################################################
+                """, this);
+    }
+
+    /**
      * Handles user action
      *
      * @param userName      String - user name
@@ -41,21 +64,10 @@ public class UserThread extends Thread {
         utLogger.info(userName + ": " + split.getCommand() + " " + split.getMessage());
 
         switch (split.getCommand()) {
-            case "\\help" -> server.writeToUser("""
-                    ###########################################################
-                    commands:\s
-                    \\help - print all commands
-                    \\showusers - print all users
-                    \\showdecks - print all running decks
-                    \\msgall - msg all connected users
-                    \\<username> - msg specified user
-                    \\bye - exit
-                    ###########################################################
-                    """, this);
+            case "\\help" -> showCommands();
             case "\\showusers" -> server.writeToUser(server.getUserNames().toString(), this);
             case "\\showdecks" -> server.writeToUser(server.getDecks().toString(), this);
-            case "\\msgall" -> server.broadcast(
-                    userName + ": " + split.getMessage(), this);
+            case "\\msgall" -> server.broadcast(userName + ": " + split.getMessage(), this);
             default -> {
                 boolean done = false;
                 if (split.getCommand().equals("\\".concat(userName))) {
@@ -92,7 +104,7 @@ public class UserThread extends Thread {
 
             String userName = reader.readLine();
 
-            int i=1;
+            int i = 1;
             while (server.getUserNames().contains(userName)) {
                 userName = userName.concat(String.valueOf(i));
                 i += 1;
