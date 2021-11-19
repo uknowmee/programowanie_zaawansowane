@@ -10,25 +10,12 @@ import java.util.*;
  * class representing classic Deck
  */
 public class Deck {
-    /**
-     * field used in shuffle function
-     */
     private final Random random;
-
-    /**
-     * Deck class logger
-     */
     private final Logger logger;
-
-    /**
-     * List of Cards (card heap)
-     */
     private ArrayList<Card> cards;
-
-    /**
-     * List of Players
-     */
     private final ArrayList<Player> players;
+    private final String name;
+    private final int numOfPlayers;
 
     /**
      * Class describing a single Card
@@ -105,6 +92,10 @@ public class Deck {
         private final ArrayList<Card> playerCards;
         private final String playerName;
 
+        /**
+         * Base constructor
+         * @param playerName {@link String} - name of the player
+         */
         private Player(String playerName) {
 
             this.playerName = playerName;
@@ -113,11 +104,83 @@ public class Deck {
     }
 
     /**
-     * Void method which set decks cards list
-     * @param cards - can be obtained from shuffle or fabric methods
+     * Base constructor
+     * @param serverLogger {@link Logger} - log stuff
+     * @param deckName {@link String} - name of the deck
+     * @param userName {@link String} - name of deck creator
+     * @param numOfPlayers {@link Integer} - max number of players
      */
-    public void setCards(ArrayList<Card> cards) {
-        this.cards = cards;
+    public Deck(Logger serverLogger, String deckName,
+                String userName, int numOfPlayers) {
+
+        this.random = new Random();
+        this.logger = serverLogger;
+
+        this.players = new ArrayList<>();
+        this.players.add(new Player(userName));
+
+        this.cards = new ArrayList<>();
+        fabric();
+
+        this.name = deckName;
+        this.numOfPlayers = numOfPlayers;
+    }
+
+    /**
+     * Return cards which are not in player hands
+     * @return {@link #cards} ArrayList - cards on heap
+     */
+    public ArrayList<Card> getCards() {
+        return cards;
+    }
+
+    /**
+     * Return players connected to deck
+     * @return {@link #players} ArrayList - players on deck
+     */
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    /**
+     * Return player names connected to deck
+     * @return playerNames ArrayList - player names on deck
+     */
+    public ArrayList<String> getPlayerNames() {
+        ArrayList<String> playerNames = new ArrayList<>();
+        for (Player player : players) {
+            playerNames.add(player.playerName);
+        }
+        return playerNames;
+    }
+
+    /**
+     * Return name of the deck
+     * @return {@link #name} String - deck name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Return number of maximum players
+     * @return {@link #numOfPlayers} Integer - max number of players
+     */
+    public int getNumOfPlayers() {
+        return numOfPlayers;
+    }
+
+    public void playerJoin(String userName) {
+        players.add(new Player(userName));
+    }
+
+    public void playerLeave(String userName) {
+        for (Player player : players) {
+            if (player.playerName.equals(userName)) {
+                players.remove(player);
+                break;
+            }
+        }
     }
 
     /**
@@ -147,16 +210,6 @@ public class Deck {
         for (Player player : players) {
             logger.info(player.playerName);
         }
-    }
-
-    /**
-     * Void method which can be used to add new player
-     */
-    public void addPlayer() {
-
-        Scanner scanner = new Scanner(System.in);
-        logger.info("name the player: ");
-        players.add(new Player(scanner.next()));
     }
 
     /**
@@ -199,10 +252,9 @@ public class Deck {
     }
 
     /**
-     * Method is used by setCards method
-     * @return ArrayList of all cards
+     * Shuffle cards in deck
      */
-    public ArrayList<Card> shuffle() {
+    public void shuffle() {
 
         ArrayList<Card> sorted = new ArrayList<>(this.cards);
         Card card;
@@ -210,46 +262,31 @@ public class Deck {
         int second;
 
         for (int i = 0; i < 100; i++) {
-            first = this.random.nextInt(24);
-            second = this.random.nextInt(24);
+            first = this.random.nextInt(sorted.size());
+            second = this.random.nextInt(sorted.size());
             while (first == second) {
-                second = this.random.nextInt(24);
+                second = this.random.nextInt(sorted.size());
             }
             card = sorted.get(first);
             sorted.set(first, sorted.get(second));
             sorted.set(second, card);
         }
 
-        return sorted;
+        cards = sorted;
     }
 
     /**
      * Method is used by setCards method
-     * @return ArrayList of all cards
      */
-    public ArrayList<Card> fabric() {
+    public void fabric() {
 
         ArrayList<Card> fabric = new ArrayList<>();
-        fabric.ensureCapacity(24);
 
         for (Card.Suit suit : Card.Suit.values()) {
             for (Card.Rank rank : Card.Rank.values()) {
                 fabric.add(new Card(suit.name(), rank.name()));
             }
         }
-        return fabric;
-    }
-
-    /**
-     * Base constructor
-     */
-    public Deck(Logger logger) {
-
-        this.random = new Random();
-        this.logger = logger;
-        this.players = new ArrayList<>();
-        this.cards = new ArrayList<>();
-        this.cards.ensureCapacity(24);
-        this.cards = this.fabric();
+        cards = fabric;
     }
 }

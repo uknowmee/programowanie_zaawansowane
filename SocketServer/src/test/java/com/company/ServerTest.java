@@ -57,12 +57,14 @@ public class ServerTest {
         userThreads.add(newUser);
 
         assertEquals(names, server.getUserNames());
-        for (Server.User us : server.getUsers()) {
+        for (Server.User us : Server.getUsers()) {
             assertEquals("michal", us.getUserName());
             assertEquals(newUser, us.getUserThread());
             assertEquals("\\michal", us.getUserCommandName());
         }
         assertEquals(userThreads, server.getUserThreads());
+
+        server.removeUser(name, newUser);
     }
 
     @Test
@@ -78,9 +80,12 @@ public class ServerTest {
         server.addUserName(name, newUser);
 
         server.removeUser(name, newUser);
+        System.out.println(server.getUserThreads().size());
+        System.out.println(Server.getUsers().size());
+        System.out.println(server.getUserNames().size());
 
         assertEquals(0, server.getUserThreads().size());
-        assertEquals(0, server.getUsers().size());
+        assertEquals(0, Server.getUsers().size());
         assertEquals(0, server.getUserNames().size());
     }
 

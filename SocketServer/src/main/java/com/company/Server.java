@@ -15,17 +15,19 @@ public class Server {
     private final int port;
     private final Set<String> userNames = new HashSet<>();
     private final Set<UserThread> userThreads = new HashSet<>();
-    private final Set<User> users = new HashSet<>();
+    private static final Set<User> users = new HashSet<>();
     private final Set<Deck> decks = new HashSet<>();
     static final Logger serverLogger = Logger.getLogger(Server.class.getName());
 
     /**
      * Class describing connected user
      */
-    static class User {
+    public static class User {
         private final UserThread userThread;
         private String userName;
         private String userCommandName;
+        private Boolean inDeck;
+        private String deckName;
 
         /**
          * Base constructor
@@ -37,6 +39,17 @@ public class Server {
             this.userThread = userThreads;
             this.userName = userName;
             this.userCommandName = "\\";
+            this.inDeck = false;
+            this.deckName = "";
+        }
+
+        /**
+         * Returns tru if user is in the deck
+         *
+         * @return {@link User#inDeck} Boolean - used when checking if user is in deck
+         */
+        public Boolean getInDeck() {
+            return inDeck;
         }
 
         /**
@@ -65,6 +78,28 @@ public class Server {
         public String getUserName() {
             return userName;
         }
+
+        /**
+         * returns deck name
+         * @return {@link #deckName} String - current deck name
+         */
+        public String getDeckName() {
+            return deckName;
+        }
+
+        /**
+         * Sets inDeck properties
+         */
+        public void setInDeck(Boolean inDeck, String deckName) {
+            if (Boolean.TRUE.equals(inDeck)) {
+                this.deckName = deckName;
+            }
+            else {
+                this.deckName = "";
+            }
+
+            this.inDeck = inDeck;
+        }
     }
 
     /**
@@ -73,7 +108,7 @@ public class Server {
      * server command and message got from console in {@link ServerThread}<br>
      * while handling their single String input
      */
-    static class Split {
+    public static class Split {
         private final String command;
         private String message;
 
@@ -132,7 +167,7 @@ public class Server {
      *
      * @return {@link #port} Int - port of the server
      */
-    int getPort() {
+    public int getPort() {
         return port;
     }
 
@@ -141,7 +176,7 @@ public class Server {
      *
      * @return {@link #userNames} Set - names of the connected users
      */
-    Set<String> getUserNames() {
+    public Set<String> getUserNames() {
         return this.userNames;
     }
 
@@ -150,8 +185,8 @@ public class Server {
      *
      * @return {@link #users} Set - connected users
      */
-    Set<User> getUsers() {
-        return this.users;
+    public static Set<User> getUsers() {
+        return Server.users;
     }
 
     /**
@@ -164,12 +199,40 @@ public class Server {
     }
 
     /**
+     * Return User from users based on his name if user does not exist RETURNS NULL
+     *
+     * @param name String - users name
+     * @return {@link User} User - user connected to server
+     */
+    public static User getUserFromName(String name) {
+        for (User user : getUsers()) {
+            if (user.getUserName().equals(name)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Return decks
      *
      * @return {@link #decks} Set - existing decks
      */
-    Set<Deck> getDecks() {
+    public Set<Deck> getDecks() {
         return this.decks;
+    }
+
+    /**
+     * Return User from users based on his name if user does not exist RETURNS NULL
+     *
+     * @param name String - users name
+     */
+    public static void userChangeDeck(String name, String deckName, Boolean inDeck) {
+        for (User user : getUsers()) {
+            if (user.getUserName().equals(name)) {
+                user.setInDeck(inDeck, deckName);
+            }
+        }
     }
 
     /**
@@ -233,6 +296,20 @@ public class Server {
      */
     void addUser(UserThread newUser) {
         users.add(new User(newUser, ""));
+    }
+
+    public void addDeck(String deckName, UserThread userThread, int numOfPlayers) {
+        String userName = "";
+        for (User user : users) {
+            if (user.getUserThread().equals(userThread)) {
+                userName = user.getUserName();
+            }
+        }
+        decks.add(new Deck(serverLogger, deckName, userName, numOfPlayers));
+    }
+
+    public void removeDeck(Deck deck) {
+        decks.remove(deck);
     }
 
     /**

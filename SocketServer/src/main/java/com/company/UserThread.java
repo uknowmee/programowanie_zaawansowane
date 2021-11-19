@@ -2,6 +2,7 @@ package com.company;
 
 import java.io.*;
 import java.net.*;
+import java.util.Objects;
 
 import org.apache.log4j.Logger;
 
@@ -14,6 +15,7 @@ public class UserThread extends Thread {
     private final Socket socket;
     private PrintWriter writer;
     private final Logger utLogger;
+    private static final String INVALID_DECK_NAME = "Invalid deck name";
 
     /**
      * Base constructor
@@ -74,11 +76,99 @@ public class UserThread extends Thread {
                 \\help - print all commands
                 \\showusers - print all users
                 \\showdecks - print all running decks
+                \\adddeck <nameOfDeck> <numberOfPlayers>
+                \\joindeck <nameOfDeck>
+                \\leavedeck
                 \\msgall - msg all connected users
                 \\<username> - msg specified user
                 \\bye - exit
                 ###########################################################
                 """, this);
+    }
+
+    public String addDeck(String userName, Server.Split split) {
+
+        Server.Split split1 = new Server.Split(split.getMessage());
+        String name = split1.getCommand();
+        String numOfPlayers = split1.getMessage();
+
+        for (Deck deck : server.getDecks()) {
+            if (deck.getName().equals(name)) {
+                return INVALID_DECK_NAME;
+            }
+        }
+
+        String ret = "You have created a deck named: ".concat(name);
+        switch (numOfPlayers) {
+            case "2":
+                server.addDeck(name, this, 2);
+                Server.userChangeDeck(userName, name, true);
+                return ret;
+            case "3":
+                server.addDeck(name, this, 3);
+                Server.userChangeDeck(userName, name, true);
+                return ret;
+            case "4":
+                server.addDeck(name, this, 4);
+                Server.userChangeDeck(userName, name, true);
+                return ret;
+            default:
+                return "Invalid deck name or number of players";
+        }
+    }
+
+    public String joinDeck(String userName, Server.Split split) {
+        for (Deck deck : server.getDecks()) {
+            if (deck.getName().equals(split.getMessage()) &&
+                    deck.getNumOfPlayers() > deck.getPlayers().size()) {
+                deck.playerJoin(userName);
+                Server.userChangeDeck(userName, split.getMessage(), true);
+                return "You have joined a deck named: ".concat(deck.getName());
+            }
+        }
+        return INVALID_DECK_NAME;
+    }
+
+    public String leaveDeck(String userName, Server.Split split) {
+        for (Deck deck : server.getDecks()) {
+            if (deck.getPlayerNames().contains(userName)) {
+                if (deck.getPlayers().size() > 1) {
+                    deck.playerLeave(userName);
+                    Server.userChangeDeck(userName, split.getMessage(), false);
+                }
+                else {
+                    Server.userChangeDeck(userName, split.getMessage(), false);
+                    server.removeDeck(deck);
+                }
+                return "You have left a deck named: ".concat(deck.getName());
+            }
+        }
+        return INVALID_DECK_NAME;
+    }
+
+    /**
+     * Handles default user action
+     *
+     * @param split    Split - client message container
+     * @param userName - String client name
+     */
+    public void defaultAction(Server.Split split, String userName) {
+        boolean done = false;
+        if (split.getCommand().equals("\\".concat(userName))) {
+            server.writeToUser("unknown command!", this);
+        }
+        else {
+            for (Server.User user : Server.getUsers()) {
+                if (user.getUserCommandName().equals(split.getCommand())) {
+                    server.writeToUser(userName + ": " + split.getMessage(), user.getUserThread());
+                    done = true;
+                    break;
+                }
+            }
+        }
+        if (!done) {
+            server.writeToUser("unknown command!", this);
+        }
     }
 
     /**
@@ -96,26 +186,32 @@ public class UserThread extends Thread {
             case "\\help" -> showCommands();
             case "\\showusers" -> server.writeToUser(server.getUserNames().toString(), this);
             case "\\showdecks" -> server.writeToUser(server.getDecks().toString(), this);
-            case "\\msgall" -> server.broadcast(userName + ": " + split.getMessage(), this);
-            default -> {
-                boolean done = false;
-                if (split.getCommand().equals("\\".concat(userName))) {
-                    server.writeToUser("unknown command!", this);
-                    break;
+            case "\\adddeck" -> {
+                if (Objects.requireNonNull(Server.getUserFromName(userName)).getInDeck().equals(false)) {
+                    server.writeToUser(addDeck(userName, split), this);
                 }
                 else {
-                    for (Server.User user : server.getUsers()) {
-                        if (user.getUserCommandName().equals(split.getCommand())) {
-                            server.writeToUser(userName + ": " + split.getMessage(), user.getUserThread());
-                            done = true;
-                            break;
-                        }
-                    }
-                }
-                if (!done) {
-                    server.writeToUser("unknown command!", this);
+                    server.writeToUser("you are already in deck", this);
                 }
             }
+            case "\\joindeck" -> {
+                if (Objects.requireNonNull(Server.getUserFromName(userName)).getInDeck().equals(false)) {
+                    server.writeToUser(joinDeck(userName, split), this);
+                }
+                else {
+                    server.writeToUser("you are already in deck", this);
+                }
+            }
+            case "\\leavedeck" -> {
+                if (Objects.requireNonNull(Server.getUserFromName(userName)).getInDeck().equals(true)) {
+                    server.writeToUser(leaveDeck(userName, split), this);
+                }
+                else {
+                    server.writeToUser("you are not in deck", this);
+                }
+            }
+            case "\\msgall" -> server.broadcast(userName + ": " + split.getMessage(), this);
+            default -> defaultAction(split, userName);
         }
     }
 

@@ -72,24 +72,26 @@ public class ServerThread extends Thread {
      * Print users to server console
      */
     public void showUsers() {
-        Set<Server.User> users = server.getUsers();
+        String inDeck = ", in deck: ";
+
+        Set<Server.User> users = Server.getUsers();
         if (users.isEmpty()) {
             stLogger.info("[]");
         }
         else if (users.size() == 1) {
             for (Server.User us : users) {
-                stLogger.info("[" + us.getUserName() + " " + us.getUserThread() + "]");
+                stLogger.info("[" + us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "]");
             }
         }
         else {
             int i = 0;
             for (Server.User us : users) {
                 if (i == 0) {
-                    stLogger.info("[" + us.getUserName() + " " + us.getUserThread());
+                    stLogger.info("[" + us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread());
                     i++;
                 }
                 else if (i == users.size() - 1) {
-                    stLogger.info(us.getUserName() + " " + us.getUserThread() + "]");
+                    stLogger.info("[" + us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "]");
                 }
                 else {
                     stLogger.info(us.getUserName() + " " + us.getUserThread());
@@ -112,7 +114,7 @@ public class ServerThread extends Thread {
             case "\\msgall" -> server.broadcast("[SERVER]: " + text.getMessage(), null);
             default -> {
                 boolean done = false;
-                for (Server.User us : server.getUsers()) {
+                for (Server.User us : Server.getUsers()) {
                     if (us.getUserCommandName().equals(text.getCommand())) {
                         done = true;
                         server.writeToUser("[SERVER]: " + text.getMessage(), us.getUserThread());
