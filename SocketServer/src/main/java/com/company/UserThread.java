@@ -3,6 +3,7 @@ package com.company;
 import java.io.*;
 import java.net.*;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -15,7 +16,8 @@ public class UserThread extends Thread {
     private final Socket socket;
     private PrintWriter writer;
     private final Logger utLogger;
-    private static final String INVALID_DECK_NAME = "Invalid deck name";
+    private static final String UNKNOWN_COMMAND = "unknown command!";
+    private static final String PLAYERS = " players";
 
     /**
      * Base constructor
@@ -57,20 +59,25 @@ public class UserThread extends Thread {
         return utLogger;
     }
 
+    public void setWriter(PrintWriter writer) {
+        this.writer = writer;
+    }
+
     /**
      * Sends a message to the client.
      *
      * @param message String - message to client
      */
-    void sendMessage(String message) {
+    String sendMessage(String message) {
         writer.println(message);
+        return message;
     }
 
     /**
      * Print commands to server console
      */
-    public void showCommands() {
-        server.writeToUser("""
+    public String showCommands() {
+        String message = """
                 ###########################################################
                 commands:\s
                 \\help - print all commands
@@ -83,7 +90,54 @@ public class UserThread extends Thread {
                 \\<username> - msg specified user
                 \\bye - exit
                 ###########################################################
-                """, this);
+                """;
+
+        server.writeToUser(message, this);
+        return message;
+    }
+
+    public String showUsers() {
+        String usersString = "";
+        Set<Server.User> users = Server.getUsers();
+        String inDeck = ", in deck: ";
+
+        if (users.isEmpty()) {
+            usersString = "[]";
+        }
+        else if (users.size() == 1) {
+            for (Server.User us : users) {
+                usersString = "[" + us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "]";
+            }
+        }
+        else {
+            int i = 0;
+            for (Server.User us : users) {
+                if (i == 0) {
+                    usersString = usersString.concat("[" + us.getUserName() + inDeck + us.getDeckName() + "\n");
+                    i++;
+                }
+                else if (i == users.size() - 1) {
+                    usersString = usersString.concat(us.getUserName() + inDeck + us.getDeckName() + "]");
+                }
+                else {
+                    usersString = usersString.concat(us.getUserName() + inDeck + us.getDeckName() + "\n");
+                    i++;
+                }
+            }
+        }
+
+        return usersString;
+    }
+
+    public String showDecks() {
+        String decks = "";
+
+        for (Deck deck : server.getDecks()) {
+            decks = decks.concat(deck.toString());
+        }
+        server.writeToUser(decks, this);
+
+        return decks;
     }
 
     public String addDeck(String userName, Server.Split split) {
@@ -94,24 +148,24 @@ public class UserThread extends Thread {
 
         for (Deck deck : server.getDecks()) {
             if (deck.getName().equals(name)) {
-                return INVALID_DECK_NAME;
+                return UNKNOWN_COMMAND;
             }
         }
 
-        String ret = "You have created a deck named: ".concat(name);
+        String ret = "You have created a deck named: " + name + " for: ";
         switch (numOfPlayers) {
             case "2":
                 server.addDeck(name, this, 2);
                 Server.userChangeDeck(userName, name, true);
-                return ret;
+                return ret + 2 + PLAYERS;
             case "3":
                 server.addDeck(name, this, 3);
                 Server.userChangeDeck(userName, name, true);
-                return ret;
+                return ret + 3 + PLAYERS;
             case "4":
                 server.addDeck(name, this, 4);
                 Server.userChangeDeck(userName, name, true);
-                return ret;
+                return ret + 4 + PLAYERS;
             default:
                 return "Invalid deck name or number of players";
         }
@@ -126,7 +180,7 @@ public class UserThread extends Thread {
                 return "You have joined a deck named: ".concat(deck.getName());
             }
         }
-        return INVALID_DECK_NAME;
+        return UNKNOWN_COMMAND;
     }
 
     public String leaveDeck(String userName, Server.Split split) {
@@ -143,7 +197,7 @@ public class UserThread extends Thread {
                 return "You have left a deck named: ".concat(deck.getName());
             }
         }
-        return INVALID_DECK_NAME;
+        return UNKNOWN_COMMAND;
     }
 
     /**
@@ -152,23 +206,20 @@ public class UserThread extends Thread {
      * @param split    Split - client message container
      * @param userName - String client name
      */
-    public void defaultAction(Server.Split split, String userName) {
-        boolean done = false;
+    public String defaultAction(Server.Split split, String userName) {
         if (split.getCommand().equals("\\".concat(userName))) {
-            server.writeToUser("unknown command!", this);
+            server.writeToUser(UNKNOWN_COMMAND, this);
+            return UNKNOWN_COMMAND;
         }
         else {
             for (Server.User user : Server.getUsers()) {
                 if (user.getUserCommandName().equals(split.getCommand())) {
                     server.writeToUser(userName + ": " + split.getMessage(), user.getUserThread());
-                    done = true;
-                    break;
+                    return userName + ": " + split.getMessage();
                 }
             }
         }
-        if (!done) {
-            server.writeToUser("unknown command!", this);
-        }
+        return UNKNOWN_COMMAND;
     }
 
     /**
@@ -177,41 +228,55 @@ public class UserThread extends Thread {
      * @param userName      String - user name
      * @param clientMessage - client input
      */
-    void action(String userName, String clientMessage) {
+    public String action(String userName, String clientMessage) {
         Server.Split split = new Server.Split(clientMessage);
 
         utLogger.info(userName + ": " + split.getCommand() + " " + split.getMessage());
 
         switch (split.getCommand()) {
-            case "\\help" -> showCommands();
-            case "\\showusers" -> server.writeToUser(server.getUserNames().toString(), this);
-            case "\\showdecks" -> server.writeToUser(server.getDecks().toString(), this);
+            case "\\help" -> {
+                return showCommands();
+            }
+            case "\\showusers" -> {
+                return sendMessage(showUsers());
+            }
+            case "\\showdecks" -> {
+                return showDecks();
+            }
             case "\\adddeck" -> {
                 if (Objects.requireNonNull(Server.getUserFromName(userName)).getInDeck().equals(false)) {
-                    server.writeToUser(addDeck(userName, split), this);
+                    return sendMessage(addDeck(userName, split));
                 }
                 else {
-                    server.writeToUser("you are already in deck", this);
+                    server.writeToUser(UNKNOWN_COMMAND, this);
+                    return UNKNOWN_COMMAND;
                 }
             }
             case "\\joindeck" -> {
                 if (Objects.requireNonNull(Server.getUserFromName(userName)).getInDeck().equals(false)) {
-                    server.writeToUser(joinDeck(userName, split), this);
+                    return sendMessage(joinDeck(userName, split));
                 }
                 else {
-                    server.writeToUser("you are already in deck", this);
+                    server.writeToUser(UNKNOWN_COMMAND, this);
+                    return "you already are in deck";
                 }
             }
             case "\\leavedeck" -> {
                 if (Objects.requireNonNull(Server.getUserFromName(userName)).getInDeck().equals(true)) {
-                    server.writeToUser(leaveDeck(userName, split), this);
+                    return sendMessage(leaveDeck(userName, split));
                 }
                 else {
                     server.writeToUser("you are not in deck", this);
+                    return "you are already not in deck";
                 }
             }
-            case "\\msgall" -> server.broadcast(userName + ": " + split.getMessage(), this);
-            default -> defaultAction(split, userName);
+            case "\\msgall" -> {
+                server.broadcast(userName + ": " + split.getMessage(), this);
+                return "messaged all";
+            }
+            default -> {
+                return defaultAction(split, userName);
+            }
         }
     }
 

@@ -14,7 +14,7 @@ public class ServerTest {
 
     @Test
     public void constructor() {
-        int port = 8987;
+        int port = 1000;
         Server server = new Server(port);
 
         assertEquals(port, server.getPort());
@@ -40,7 +40,7 @@ public class ServerTest {
 
     @Test
     public void addUser() {
-        int port = 8987;
+        int port = 1001;
         Server server = new Server(port);
 
         String name = "michal";
@@ -69,7 +69,7 @@ public class ServerTest {
 
     @Test
     public void removeUser() {
-        int port = 8987;
+        int port = 1002;
         Server server = new Server(port);
 
         String name = "michal";
@@ -91,10 +91,9 @@ public class ServerTest {
 
     @Test
     public void getServerPort() {
-        int port = 8987;
+        int port = 1003;
         Server server = new Server(port);
 
         assertEquals(port, server.getPort());
     }
-
 }

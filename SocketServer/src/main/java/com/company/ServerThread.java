@@ -12,6 +12,8 @@ public class ServerThread extends Thread {
     private boolean ifClose;
     private final Logger stLogger;
     private final Server server;
+    private static final String SERVER_STRING = "[SERVER]: ";
+
 
     /**
      * Base constructor
@@ -55,8 +57,8 @@ public class ServerThread extends Thread {
     /**
      * Print commands to server console
      */
-    public void showCommands() {
-        stLogger.info("""
+    public String showCommands() {
+        String message = """
                 ###########################################################
                 commands:\s
                 \\help - print all commands
@@ -65,22 +67,38 @@ public class ServerThread extends Thread {
                 \\msgall - msg all connected users
                 \\<username> - msg specified user
                 \\CLOSE - exit
-                ###########################################################""");
+                ###########################################################""";
+
+        stLogger.info(message);
+        return message;
+    }
+
+    public String showDecks() {
+        String decks = "";
+
+        for (Deck deck : server.getDecks()) {
+            decks = decks.concat(deck.toString());
+        }
+
+        return decks;
     }
 
     /**
      * Print users to server console
      */
-    public void showUsers() {
+    public String showUsers() {
+        String usersString = "";
+        Set<Server.User> users = Server.getUsers();
         String inDeck = ", in deck: ";
 
-        Set<Server.User> users = Server.getUsers();
         if (users.isEmpty()) {
+            usersString = "[]";
             stLogger.info("[]");
         }
         else if (users.size() == 1) {
             for (Server.User us : users) {
                 stLogger.info("[" + us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "]");
+                usersString = usersString.concat("[" + us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "]");
             }
         }
         else {
@@ -88,17 +106,22 @@ public class ServerThread extends Thread {
             for (Server.User us : users) {
                 if (i == 0) {
                     stLogger.info("[" + us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread());
+                    usersString = usersString.concat("[" + us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "\n");
                     i++;
                 }
                 else if (i == users.size() - 1) {
-                    stLogger.info("[" + us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "]");
+                    stLogger.info(us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "]");
+                    usersString = usersString.concat(us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "]");
                 }
                 else {
-                    stLogger.info(us.getUserName() + " " + us.getUserThread());
+                    stLogger.info(us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread());
+                    usersString = usersString.concat(us.getUserName() + inDeck + us.getDeckName() + ", " + us.getUserThread() + "\n");
                     i++;
                 }
             }
         }
+
+        return usersString;
     }
 
     /**
@@ -106,24 +129,31 @@ public class ServerThread extends Thread {
      *
      * @param text String - server input
      */
-    void action(Server.Split text) {
+    public String action(Server.Split text) {
         switch (text.getCommand()) {
-            case "\\help" -> showCommands();
-            case "\\showusers" -> showUsers();
-            case "\\showdecks" -> stLogger.info(server.getDecks().toString());
-            case "\\msgall" -> server.broadcast("[SERVER]: " + text.getMessage(), null);
+            case "\\help" -> {
+                return showCommands();
+            }
+            case "\\showusers" -> {
+                return showUsers();
+            }
+            case "\\showdecks" -> {
+                stLogger.info(showDecks());
+                return showDecks();
+            }
+            case "\\msgall" -> {
+                server.broadcast(SERVER_STRING + text.getMessage(), null);
+                return "messaged all";
+            }
             default -> {
-                boolean done = false;
                 for (Server.User us : Server.getUsers()) {
                     if (us.getUserCommandName().equals(text.getCommand())) {
-                        done = true;
-                        server.writeToUser("[SERVER]: " + text.getMessage(), us.getUserThread());
-                        break;
+                        server.writeToUser(SERVER_STRING + text.getMessage(), us.getUserThread());
+                        return SERVER_STRING + text.getMessage();
                     }
                 }
-                if (!done) {
-                    stLogger.info("unknown command!");
-                }
+                stLogger.info("unknown command!");
+                return "unknown command!";
             }
         }
     }
