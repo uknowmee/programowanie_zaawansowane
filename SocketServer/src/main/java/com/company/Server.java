@@ -255,13 +255,14 @@ public class Server {
      * @param message String - Client or Server message
      * @param toUser  UserThread - user which will see message
      */
-    void writeToUser(String message, UserThread toUser) {
+    Boolean writeToUser(String message, UserThread toUser) {
         for (UserThread aUser : userThreads) {
             if (aUser.equals(toUser)) {
                 aUser.sendMessage(message);
-                break;
+                return true;
             }
         }
+        return false;
     }
 
     /**

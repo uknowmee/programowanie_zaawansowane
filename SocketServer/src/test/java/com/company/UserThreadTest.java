@@ -1,6 +1,8 @@
 package com.company;
 
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,40 +17,112 @@ import static org.junit.Assert.*;
  * Class testing UserThread
  */
 public class UserThreadTest {
+    int port = 1000;
+    private Server server;
 
-    @Test
-    public void constructor() {
-        int port = 3001;
-        Server server = new Server(port);
-        UserThread userThread = new UserThread(null, server, Server.serverLogger);
+    private ServerThread serverThread;
+    private ServerSocket serverSocket;
 
-        assertEquals(Server.serverLogger, userThread.getUtLogger());
-        assertEquals(server, userThread.getServer());
-        assertNull(userThread.getSocket());
+    private String name;
+    private UserThread newUser;
+    private Socket socket;
+    private String user;
 
-    }
+    private String name1;
+    private UserThread newUser1;
+    private Socket socket1;
+    private String user1;
 
-    @Test
-    public void actionHelp() throws IOException {
-        int port = 3002;
-        Server server = new Server(port);
+    private String name2;
+    private UserThread newUser2;
+    private Socket socket2;
+    private String user2;
 
-        RawConnectionTest  rawConnectionTest = new RawConnectionTest(port);
+    private String name3;
+    private UserThread newUser3;
+    private Socket socket3;
+    private String user3;
+
+
+    @Before
+    public void setUp() throws IOException {
+        String inDeck = ", in deck: ";
+
+        this.port = 2001;
+        this.server = new Server(port);
+        this.serverThread = new ServerThread(Server.serverLogger, server);
+
+        RawConnectionTest rawConnectionTest = new RawConnectionTest(port);
+        this.serverSocket = new ServerSocket(port);
         rawConnectionTest.start();
 
-        ServerSocket serverSocket = new ServerSocket(port);
-        Socket socket = serverSocket.accept();
-
-        ServerThread serverThread = new ServerThread(Server.serverLogger, server);
-
-        String name = "michal";
-        UserThread newUser = new UserThread(socket, server, Server.serverLogger);
+        this.socket = serverSocket.accept();
+        this.name = "michal";
+        this.newUser = new UserThread(socket, server, Server.serverLogger);
+        this.serverThread = new ServerThread(Server.serverLogger, server);
         OutputStream output = socket.getOutputStream();
-        newUser.setWriter(new PrintWriter(output, true));
+        this.newUser.setWriter(new PrintWriter(output, true));
         server.addUserThread(newUser);
         server.addUser(newUser);
         server.addUserName(name, newUser);
 
+        this.socket1 = serverSocket.accept();
+        this.name1 = "wojtek";
+        this.newUser1 = new UserThread(socket1, server, Server.serverLogger);
+        OutputStream output1 = socket.getOutputStream();
+        newUser1.setWriter(new PrintWriter(output1, true));
+        server.addUserThread(newUser1);
+        server.addUser(newUser1);
+        server.addUserName(name1, newUser1);
+
+        this.socket2 = serverSocket.accept();
+        this.name2 = "ola";
+        this.newUser2 = new UserThread(socket2, server, Server.serverLogger);
+        OutputStream output2 = socket.getOutputStream();
+        newUser2.setWriter(new PrintWriter(output2, true));
+        server.addUserThread(newUser2);
+        server.addUser(newUser2);
+        server.addUserName(name2, newUser2);
+
+        this.socket3 = serverSocket.accept();
+        this.name3 = "kacper";
+        this.newUser3 = new UserThread(socket3, server, Server.serverLogger);
+        OutputStream output3 = socket.getOutputStream();
+        newUser3.setWriter(new PrintWriter(output3, true));
+        server.addUserThread(newUser3);
+        server.addUser(newUser3);
+        server.addUserName(name3, newUser3);
+
+        this.user = name + inDeck + "";
+        this.user1 = name1 + inDeck + "";
+        this.user2 = name2 + inDeck + "";
+        this.user3 = name3 + inDeck + "";
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        server.removeUser(name, newUser);
+        server.removeUser(name1, newUser1);
+        server.removeUser(name2, newUser2);
+        server.removeUser(name3, newUser3);
+
+        socket.close();
+        socket1.close();
+        socket2.close();
+        socket3.close();
+
+        serverSocket.close();
+    }
+
+    @Test
+    public void constructor() {
+        assertEquals(Server.serverLogger, newUser.getUtLogger());
+        assertEquals(server, newUser.getServer());
+        assertEquals(socket, newUser.getSocket());
+    }
+
+    @Test
+    public void actionHelp() {
         assertEquals("""
                 ###########################################################
                 commands:\s
@@ -63,77 +137,36 @@ public class UserThreadTest {
                 \\bye - exit
                 ###########################################################
                 """, newUser.action(newUser.getName(), "\\help"));
-
-        server.removeUser("michal", newUser);
-        socket.close();
     }
 
     @Test
-    public void actionShowUsers() throws IOException {
+    public void actionShowUsersEmpty() {
+        server.removeUser(name, newUser);
+        server.removeUser(name1, newUser1);
+        server.removeUser(name2, newUser2);
+        server.removeUser(name3, newUser3);
+        assertEquals("[]", newUser.action(name, "\\showusers"));
+    }
+
+    @Test
+    public void actionShowUsersOne() {
         String inDeck = ", in deck: ";
-        int port = 3003;
-        Server server = new Server(port);
 
-        RawConnectionTest  rawConnectionTest = new RawConnectionTest(port);
-        rawConnectionTest.start();
-
-        ServerSocket serverSocket = new ServerSocket(port);
-        Socket socket = serverSocket.accept();
-
-        String name = "michal";
-        UserThread newUser = new UserThread(socket, server, Server.serverLogger);
-        ServerThread newUserThread = new ServerThread(Server.serverLogger, server);
-        OutputStream output = socket.getOutputStream();
-        newUser.setWriter(new PrintWriter(output, true));
-
-        assertEquals("[]", newUserThread.action(new Server.Split("\\showusers")));
-
-        server.addUserThread(newUser);
-        server.addUser(newUser);
-        server.addUserName(name, newUser);
+        server.removeUser(name1, newUser1);
+        server.removeUser(name2, newUser2);
+        server.removeUser(name3, newUser3);
 
         assertEquals("[" + name + inDeck + "" + ", " + newUser + "]",
                 newUser.action(newUser.getName(), "\\showusers"));
-
-        Socket socket1 = serverSocket.accept();
-
-        String name1 = "wojtek";
-        UserThread newUser1 = new UserThread(socket1, server, Server.serverLogger);
-        ServerThread newUserThread1 = new ServerThread(Server.serverLogger, server);
-        OutputStream output1 = socket.getOutputStream();
-        newUser.setWriter(new PrintWriter(output1, true));
-        server.addUserThread(newUser1);
-        server.addUser(newUser1);
-        server.addUserName(name1, newUser1);
-
-        Socket socket2 = serverSocket.accept();
-
-        String name2 = "ola";
-        UserThread newUser2 = new UserThread(socket2, server, Server.serverLogger);
-        ServerThread newUserThread2 = new ServerThread(Server.serverLogger, server);
-        OutputStream output2 = socket.getOutputStream();
-        newUser.setWriter(new PrintWriter(output2, true));
-        server.addUserThread(newUser2);
-        server.addUser(newUser2);
-        server.addUserName(name2, newUser2);
-
-        String user =  name + inDeck + "";
-        String user1 = name1 + inDeck + "";
-        String user2 = name2 + inDeck + "";
-
-        assertTrue(newUser.action("michal","\\showusers").contains(user));
-        assertTrue(newUser.action("wojtek","\\showusers").contains(user1));
-        assertTrue(newUser.action("ola","\\showusers").contains(user2));
-
-        server.removeUser("michal", newUser);
-        server.removeUser("wojtek", newUser1);
-        server.removeUser("ola", newUser2);
-
-        socket.close();
-        socket1.close();
-        socket2.close();
-
     }
+
+    @Test
+    public void actionShowUsersFew() {
+        assertTrue(newUser.action(name, "\\showusers").contains(user));
+        assertTrue(newUser1.action(name1, "\\showusers").contains(user1));
+        assertTrue(newUser2.action(name2, "\\showusers").contains(user2));
+    }
+
 
     @Test
     public void actionShowDecks() {
@@ -141,97 +174,62 @@ public class UserThreadTest {
     }
 
     @Test
-    public void actionAddDeck() throws IOException {
-        String inDeck = ", in deck: ";
-        int port = 3004;
-        Server server = new Server(port);
+    public void defaultActionUnknownCommand() {
+        assertEquals("unknown command!", newUser.action(name, "\\" + name));
+        assertEquals("unknown command!", newUser.action(name, "asd"));
+        assertEquals("unknown command!", newUser.action(name, "asddasdgswf"));
+    }
 
-        RawConnectionTest  rawConnectionTest = new RawConnectionTest(port);
-        rawConnectionTest.start();
+    @Test
+    public void defaultActionOnlyOneUser() {
+        server.removeUser(name1, newUser1);
+        server.removeUser(name2, newUser3);
+        server.removeUser(name3, newUser3);
 
-        ServerSocket serverSocket = new ServerSocket(port);
-        Socket socket = serverSocket.accept();
+        assertEquals("unknown command!", newUser.action(name, "\\asda asd"));
+        assertEquals("unknown command!", newUser.action(name, "\\asd"));
+    }
 
-        String name = "michal";
-        UserThread newUser = new UserThread(socket, server, Server.serverLogger);
-        ServerThread newUserThread = new ServerThread(Server.serverLogger, server);
-        OutputStream output = socket.getOutputStream();
-        newUser.setWriter(new PrintWriter(output, true));
-        server.addUserThread(newUser);
-        server.addUser(newUser);
-        server.addUserName(name, newUser);
+    @Test
+    public void defaultActionWhisper() {
+        assertEquals(name + ": " + "asdasd", newUser.action(name, "\\" + name1 + " asdasd"));
+    }
 
-        Socket socket1 = serverSocket.accept();
+    @Test
+    public void actionAddDeck() {
+        assertEquals("Invalid deck name or number of players", newUser.action(name, "\\adddeck hihi "));
 
-        String name1 = "wojtek";
-        UserThread newUser1 = new UserThread(socket1, server, Server.serverLogger);
-        ServerThread newUserThread1 = new ServerThread(Server.serverLogger, server);
-        OutputStream output1 = socket.getOutputStream();
-        newUser1.setWriter(new PrintWriter(output1, true));
-        server.addUserThread(newUser1);
-        server.addUser(newUser1);
-        server.addUserName(name1, newUser1);
+        assertEquals("You have created a deck named: hihi for: 3 players", newUser.action(name, "\\adddeck hihi 3"));
+        assertEquals("unknown command!", newUser.action(name, "\\addDeck hihi 2"));
+        assertEquals("unknown command!", newUser.action(name, "\\addDeck hihi"));
 
-        Socket socket2 = serverSocket.accept();
-
-        String name2 = "ola";
-        UserThread newUser2 = new UserThread(socket2, server, Server.serverLogger);
-        ServerThread newUserThread2 = new ServerThread(Server.serverLogger, server);
-        OutputStream output2 = socket.getOutputStream();
-        newUser2.setWriter(new PrintWriter(output2, true));
-        server.addUserThread(newUser2);
-        server.addUser(newUser2);
-        server.addUserName(name2, newUser2);
-
-        Socket socket3 = serverSocket.accept();
-
-        String name3 = "kacper";
-        UserThread newUser3 = new UserThread(socket3, server, Server.serverLogger);
-        ServerThread newUserThread3 = new ServerThread(Server.serverLogger, server);
-        OutputStream output3 = socket.getOutputStream();
-        newUser3.setWriter(new PrintWriter(output3, true));
-        server.addUserThread(newUser3);
-        server.addUser(newUser3);
-        server.addUserName(name3, newUser3);
-
-        assertEquals("Invalid deck name or number of players",newUser.action("michal", "\\adddeck hihi "));
-
-        assertEquals("You have created a deck named: hihi for: 3 players",newUser.action("michal","\\adddeck hihi 3"));
-        assertEquals("unknown command!",newUser.action("michal","\\addDeck hihi 2"));
-
-        assertEquals("unknown command!", newUser1.action("wojtek","\\adddeck hihi 2"));
-        assertEquals("unknown command!", newUser1.action("wojtek","\\joindeck"));
-        assertEquals("You have joined a deck named: hihi",newUser1.action("wojtek","\\joindeck hihi"));
-        assertEquals("you already are in deck",newUser1.action("wojtek","\\joindeck hihi"));
-        assertEquals("You have joined a deck named: hihi", newUser2.action("ola","\\joindeck hihi"));
-        assertEquals("unknown command!", newUser3.action("kacper","\\joindeck hihi"));
-        assertEquals("unknown command!", newUser3.action("kacper","\\adddeck hihi"));
-        assertEquals("You have created a deck named: hihig for: 3 players", newUser3.action("kacper","\\adddeck hihig 3"));
+        assertEquals("unknown command!", newUser1.action(name1, "\\adddeck hihi 2"));
+        assertEquals("unknown command!", newUser1.action(name1, "\\joindeck"));
+        assertEquals("You have joined a deck named: hihi", newUser1.action(name1, "\\joindeck hihi"));
+        assertEquals("you already are in deck", newUser1.action(name1, "\\joindeck hihi"));
+        assertEquals("You have joined a deck named: hihi", newUser2.action(name2, "\\joindeck hihi"));
+        assertEquals("unknown command!", newUser3.action(name3, "\\joindeck hihi"));
+        assertEquals("unknown command!", newUser3.action(name3, "\\adddeck hihi"));
+        assertEquals("You have created a deck named: hihig for: 3 players", newUser3.action(name3, "\\adddeck hihig 3"));
         assertEquals(2, server.getDecks().size());
-        assertEquals("You have left a deck named: hihig", newUser3.action("kacper","\\leavedeck"));
-        assertEquals("you are already not in deck", newUser3.action("kacper","\\leavedeck"));
+        assertEquals("You have left a deck named: hihig", newUser3.action(name3, "\\leavedeck"));
+        assertEquals("you are already not in deck", newUser3.action(name3, "\\leavedeck"));
 
-        assertEquals("You have left a deck named: hihi", newUser3.action("michal","\\leavedeck"));
-        assertEquals("You have left a deck named: hihi", newUser3.action("ola","\\leavedeck"));
-        assertEquals("You have left a deck named: hihi", newUser3.action("wojtek","\\leavedeck"));
+        assertEquals("You have left a deck named: hihi", newUser3.action(name, "\\leavedeck"));
+        assertEquals("You have left a deck named: hihi", newUser3.action(name1, "\\leavedeck"));
+        assertEquals("You have left a deck named: hihi", newUser3.action(name2, "\\leavedeck"));
+
+        assertEquals("You have created a deck named: hihi for: 2 players", newUser.action(name, "\\adddeck hihi 2"));
+        assertEquals("You have left a deck named: hihi", newUser3.action(name, "\\leavedeck"));
+        assertEquals("You have created a deck named: hihi for: 4 players", newUser.action(name, "\\adddeck hihi 4"));
+        assertEquals("You have left a deck named: hihi", newUser3.action(name, "\\leavedeck"));
 
         assertEquals(0, server.getDecks().size());
-
-        server.removeUser("michal", newUser);
-        server.removeUser("wojtek", newUser1);
-        server.removeUser("ola", newUser2);
-        server.removeUser("kacper", newUser3);
-
-        socket.close();
-        socket1.close();
-        socket2.close();
-        socket3.close();
-
     }
 
     @Test
     public void actionMsgAll() {
-
+        assertEquals("messaged all", newUser.action(name, "\\msgall hello everybody"));
     }
 
 }

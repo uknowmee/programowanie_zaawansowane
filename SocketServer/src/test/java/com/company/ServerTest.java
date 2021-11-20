@@ -68,6 +68,19 @@ public class ServerTest {
     }
 
     @Test
+    public void getUserFromNameEmpty() {
+        assertNull(Server.getUserFromName(""));
+    }
+
+    @Test
+    public void writeToUser() {
+        int port = 1001;
+        Server server = new Server(port);
+
+        assertFalse(server.writeToUser("sad", null));
+    }
+
+    @Test
     public void removeUser() {
         int port = 1002;
         Server server = new Server(port);
@@ -80,13 +93,31 @@ public class ServerTest {
         server.addUserName(name, newUser);
 
         server.removeUser(name, newUser);
-        System.out.println(server.getUserThreads().size());
-        System.out.println(Server.getUsers().size());
-        System.out.println(server.getUserNames().size());
 
         assertEquals(0, server.getUserThreads().size());
         assertEquals(0, Server.getUsers().size());
         assertEquals(0, server.getUserNames().size());
+    }
+
+    @Test
+    public void removeUserNotExist() {
+        int port = 1002;
+        Server server = new Server(port);
+
+        String name = "michal";
+        UserThread newUser = new UserThread(null, server, Server.serverLogger);
+
+        server.addUserThread(newUser);
+        server.addUser(newUser);
+        server.addUserName(name, newUser);
+
+        server.removeUser("asd", newUser);
+
+        assertEquals(1, server.getUserThreads().size());
+        assertEquals(1, Server.getUsers().size());
+        assertEquals(1, server.getUserNames().size());
+
+        server.removeUser("michal", newUser);
     }
 
     @Test
