@@ -94,6 +94,7 @@ public class Deck {
 
         /**
          * Base constructor
+         *
          * @param playerName {@link String} - name of the player
          */
         private Player(String playerName) {
@@ -105,9 +106,10 @@ public class Deck {
 
     /**
      * Base constructor
+     *
      * @param serverLogger {@link Logger} - log stuff
-     * @param deckName {@link String} - name of the deck
-     * @param userName {@link String} - name of deck creator
+     * @param deckName     {@link String} - name of the deck
+     * @param userName     {@link String} - name of deck creator
      * @param numOfPlayers {@link Integer} - max number of players
      */
     public Deck(Logger serverLogger, String deckName,
@@ -128,6 +130,7 @@ public class Deck {
 
     /**
      * Return cards which are not in player hands
+     *
      * @return {@link #cards} ArrayList - cards on heap
      */
     public ArrayList<Card> getCards() {
@@ -136,6 +139,7 @@ public class Deck {
 
     /**
      * Return players connected to deck
+     *
      * @return {@link #players} ArrayList - players on deck
      */
     public ArrayList<Player> getPlayers() {
@@ -144,6 +148,7 @@ public class Deck {
 
     /**
      * Return player names connected to deck
+     *
      * @return playerNames ArrayList - player names on deck
      */
     public ArrayList<String> getPlayerNames() {
@@ -156,14 +161,28 @@ public class Deck {
 
     /**
      * Return name of the deck
+     *
      * @return {@link #name} String - deck name
      */
     public String getName() {
         return name;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder deck = new StringBuilder("Deck named: " + name +
+                ", with maximum of: " + numOfPlayers + " players\n" + "\tdecks players:\n");
+
+        for (Player player : players) {
+            deck.append("\t\t").append(player.playerName).append("\n");
+        }
+
+        return deck.toString();
+    }
+
     /**
      * Return number of maximum players
+     *
      * @return {@link #numOfPlayers} Integer - max number of players
      */
     public int getNumOfPlayers() {

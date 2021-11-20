@@ -37,6 +37,10 @@ public class ServerThreadTest {
     private Socket socket2;
     private String user2;
 
+    private String name3;
+    private UserThread newUser3;
+    private Socket socket3;
+    private String user3;
 
     @Before
     public void setUp() throws IOException {
@@ -79,9 +83,19 @@ public class ServerThreadTest {
         server.addUser(newUser2);
         server.addUserName(name2, newUser2);
 
-        this.user = name + inDeck + "" + ", " + newUser;
-        this.user1 = name1 + inDeck + "" + ", " + newUser1;
-        this.user2 = name2 + inDeck + "" + ", " + newUser2;
+        this.socket3 = serverSocket.accept();
+        this.name3 = "kacper";
+        this.newUser3 = new UserThread(socket3, server, Server.serverLogger);
+        OutputStream output3 = socket.getOutputStream();
+        newUser3.setWriter(new PrintWriter(output3, true));
+        server.addUserThread(newUser3);
+        server.addUser(newUser3);
+        server.addUserName(name3, newUser3);
+
+        this.user = name + inDeck + "";
+        this.user1 = name1 + inDeck + "";
+        this.user2 = name2 + inDeck + "";
+        this.user3 = name3 + inDeck + "";
     }
 
     @After
@@ -89,10 +103,12 @@ public class ServerThreadTest {
         server.removeUser(name, newUser);
         server.removeUser(name1, newUser1);
         server.removeUser(name2, newUser2);
+        server.removeUser(name3, newUser3);
 
         socket.close();
         socket1.close();
         socket2.close();
+        socket3.close();
 
         serverSocket.close();
     }
@@ -148,7 +164,37 @@ public class ServerThreadTest {
 
     @Test
     public void showDecks() {
+        newUser.action(name, "\\adddeck first 2");
+        newUser1.action(name1, "\\joindeck first");
 
+        newUser2.action(name2, "\\adddeck second 3");
+
+        newUser3.action(name3, "\\adddeck third 3");
+
+        String answer = """
+                Deck named: first, with maximum of: 2 players
+                \tdecks players:
+                \t\tmichal
+                \t\twojtek
+                """;
+
+        String answer1 = """
+                Deck named: second, with maximum of: 3 players
+                \tdecks players:
+                \t\tola
+                """;
+
+        String answer2 = """
+                Deck named: third, with maximum of: 3 players
+                \tdecks players:
+                \t\tkacper
+                """;
+
+        String decks = serverThread.action(new Server.Split("\\showdecks"));
+
+        assertTrue(decks.contains(answer));
+        assertTrue(decks.contains(answer1));
+        assertTrue(decks.contains(answer2));
     }
 
     @Test

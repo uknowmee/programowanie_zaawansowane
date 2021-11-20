@@ -170,7 +170,37 @@ public class UserThreadTest {
 
     @Test
     public void actionShowDecks() {
+        newUser.action(name, "\\adddeck first 2");
+        newUser1.action(name1, "\\joindeck first");
 
+        newUser2.action(name2, "\\adddeck second 3");
+
+        newUser3.action(name3, "\\adddeck third 3");
+
+        String answer = """
+                Deck named: first, with maximum of: 2 players
+                \tdecks players:
+                \t\tmichal
+                \t\twojtek
+                """;
+
+        String answer1 = """
+                Deck named: second, with maximum of: 3 players
+                \tdecks players:
+                \t\tola
+                """;
+
+        String answer2 = """
+                Deck named: third, with maximum of: 3 players
+                \tdecks players:
+                \t\tkacper
+                """;
+
+        String decks = newUser.action(name, "\\showdecks");
+
+        assertTrue(decks.contains(answer));
+        assertTrue(decks.contains(answer1));
+        assertTrue(decks.contains(answer2));
     }
 
     @Test

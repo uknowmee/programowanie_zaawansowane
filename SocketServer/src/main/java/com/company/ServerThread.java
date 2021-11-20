@@ -77,7 +77,7 @@ public class ServerThread extends Thread {
         String decks = "";
 
         for (Deck deck : server.getDecks()) {
-            decks = decks.concat(deck.toString());
+            decks = decks.concat(deck.toString() + "\n");
         }
 
         return decks;
