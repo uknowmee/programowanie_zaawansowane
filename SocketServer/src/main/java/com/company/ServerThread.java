@@ -83,7 +83,7 @@ public class ServerThread extends Thread {
     public String showDecks() {
         String decks = "";
 
-        for (Deck deck : server.getDecks()) {
+        for (Deck deck : Server.getDecks()) {
             decks = decks.concat(deck.toString() + "\n");
         }
 
@@ -158,7 +158,7 @@ public class ServerThread extends Thread {
             default -> {
                 for (Server.User us : Server.getUsers()) {
                     if (us.getUserCommandName().equals(text.getCommand())) {
-                        server.writeToUser(SERVER_STRING + text.getMessage(), us.getUserThread());
+                        Server.writeToUser(SERVER_STRING + text.getMessage(), us.getUserThread());
                         return SERVER_STRING + text.getMessage();
                     }
                 }

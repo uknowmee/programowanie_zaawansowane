@@ -16,6 +16,8 @@ public class Deck {
     private final ArrayList<Player> players;
     private final String name;
     private final int numOfPlayers;
+    private final Response response;
+    private boolean started;
 
     /**
      * Class describing a single Card
@@ -105,6 +107,21 @@ public class Deck {
     }
 
     /**
+     * Static response from Deck with running game to server
+     */
+    private static class Response{
+
+        /**
+         * Returns response as string
+         * @return ret String - response represented by string
+         */
+        @Override
+        public String toString() {
+            return "not implemented yet";
+        }
+    }
+
+    /**
      * Base constructor
      *
      * @param serverLogger {@link Logger} - log stuff
@@ -115,6 +132,7 @@ public class Deck {
     public Deck(Logger serverLogger, String deckName,
                 String userName, int numOfPlayers) {
 
+        this.response = new Response();
         this.random = new Random();
         this.logger = serverLogger;
 
@@ -126,6 +144,8 @@ public class Deck {
 
         this.name = deckName;
         this.numOfPlayers = numOfPlayers;
+
+        this.started = false;
     }
 
     /**
@@ -135,6 +155,14 @@ public class Deck {
      */
     public ArrayList<Card> getCards() {
         return cards;
+    }
+
+    /**
+     * Returns deck response as string
+     * @return ret String - deck response represented by string
+     */
+    public String getResponseString() {
+        return response.toString();
     }
 
     /**
@@ -168,6 +196,35 @@ public class Deck {
         return name;
     }
 
+    /**
+     * Method says if certain game already started
+     * @return {@link #started} Boolean - true if game started
+     */
+    public boolean isStarted() {
+        return started;
+    }
+
+    /**
+     * Return number of maximum players
+     *
+     * @return {@link #numOfPlayers} Integer - max number of players
+     */
+    public int getNumOfPlayers() {
+        return numOfPlayers;
+    }
+
+    /**
+     * GameStartThread set this to true when starting the game
+     * @param started Boolean - this.started to set
+     */
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
+    /**
+     * Returns deck as string
+     * @return ret String - deck represented by string
+     */
     @Override
     public String toString() {
         StringBuilder deck = new StringBuilder("Deck named: " + name +
@@ -178,15 +235,6 @@ public class Deck {
         }
 
         return deck.toString();
-    }
-
-    /**
-     * Return number of maximum players
-     *
-     * @return {@link #numOfPlayers} Integer - max number of players
-     */
-    public int getNumOfPlayers() {
-        return numOfPlayers;
     }
 
     public void playerJoin(String userName) {

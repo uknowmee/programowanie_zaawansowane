@@ -77,7 +77,7 @@ public class ServerTest {
         int port = 1001;
         Server server = new Server(port);
 
-        assertFalse(server.writeToUser("sad", null));
+        assertFalse(Server.writeToUser("sad", null));
     }
 
     @Test

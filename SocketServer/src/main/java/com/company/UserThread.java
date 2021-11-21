@@ -62,7 +62,7 @@ public class UserThread extends Thread {
     }
 
     /**
-     * Metod used in tests, shouldnt be used often
+     * Method used in tests, shouldn't be used often
      *
      * @param writer PrintWriter - userThread can write using it to ReadThread
      */
@@ -147,7 +147,7 @@ public class UserThread extends Thread {
     public String showDecks() {
         String decks = "";
 
-        for (Deck deck : server.getDecks()) {
+        for (Deck deck : Server.getDecks()) {
             decks = decks.concat(deck.toString() + "\n");
         }
 
@@ -168,7 +168,7 @@ public class UserThread extends Thread {
             String name = split1.getCommand();
             String numOfPlayers = split1.getMessage();
 
-            for (Deck deck : server.getDecks()) {
+            for (Deck deck : Server.getDecks()) {
                 if (deck.getName().equals(name)) {
                     return UNKNOWN_COMMAND;
                 }
@@ -198,16 +198,16 @@ public class UserThread extends Thread {
     }
 
     /**
-     * With this metod an user can join the deck
+     * With this method a user can join the deck
      *
-     * @param userName String - username of an user
+     * @param userName String - username of a user
      * @param split    Split - object containing full message from user
      * @return ret Command - returns result of a joining process
      */
     public String joinDeck(String userName, Server.Split split) {
         if (Objects.requireNonNull(Server.getUserFromName(userName)).getInDeck().equals(false)) {
 
-            for (Deck deck : server.getDecks()) {
+            for (Deck deck : Server.getDecks()) {
                 if (deck.getName().equals(split.getMessage()) &&
                         deck.getNumOfPlayers() > deck.getPlayers().size()) {
                     deck.playerJoin(userName);
@@ -232,7 +232,7 @@ public class UserThread extends Thread {
     public String leaveDeck(String userName, Server.Split split) {
         if (Objects.requireNonNull(Server.getUserFromName(userName)).getInDeck().equals(true)) {
 
-            for (Deck deck : server.getDecks()) {
+            for (Deck deck : Server.getDecks()) {
                 if (deck.getPlayerNames().contains(userName) && deck.getPlayerNames().size() != deck.getNumOfPlayers()) {
                     if (deck.getPlayers().size() > 1) {
                         deck.playerLeave(userName);
@@ -261,18 +261,18 @@ public class UserThread extends Thread {
      */
     public String defaultAction(Server.Split split, String userName) {
         if (split.getCommand().equals("\\".concat(userName))) {
-            server.writeToUser(UNKNOWN_COMMAND, this);
+            Server.writeToUser(UNKNOWN_COMMAND, this);
             return UNKNOWN_COMMAND;
         }
         else {
             for (Server.User user : Server.getUsers()) {
                 if (user.getUserCommandName().equals(split.getCommand())) {
-                    server.writeToUser(userName + ": " + split.getMessage(), user.getUserThread());
+                    Server.writeToUser(userName + ": " + split.getMessage(), user.getUserThread());
                     return userName + ": " + split.getMessage();
                 }
             }
         }
-        server.writeToUser(UNKNOWN_COMMAND, this);
+        Server.writeToUser(UNKNOWN_COMMAND, this);
         return UNKNOWN_COMMAND;
     }
 
@@ -315,7 +315,7 @@ public class UserThread extends Thread {
      */
     public String ping() {
 
-        for (Deck deck : server.getDecks()) {
+        for (Deck deck : Server.getDecks()) {
             for (String player : deck.getPlayerNames()) {
 
                 if (!server.getUserNames().contains(player)) {
@@ -327,7 +327,7 @@ public class UserThread extends Thread {
 
                         user = Objects.requireNonNull(Server.getUserFromName(pl));
 
-                        server.writeToUser(player + " has left server, game " + deck.getName() + " is closing.",
+                        Server.writeToUser(player + " has left server, game " + deck.getName() + " is closing.",
                                 user.getUserThread());
 
                         Server.userChangeDeck(user.getUserName(), "", false);
@@ -368,7 +368,7 @@ public class UserThread extends Thread {
             String serverMessage;
             String clientMessage;
 
-            server.writeToUser("write: \\help to see commands", this);
+            Server.writeToUser("write: \\help to see commands", this);
             do {
                 clientMessage = reader.readLine();
 

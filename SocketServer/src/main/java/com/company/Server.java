@@ -14,9 +14,9 @@ import java.util.*;
 public class Server {
     private final int port;
     private final Set<String> userNames = new HashSet<>();
-    private final Set<UserThread> userThreads = new HashSet<>();
+    private static final Set<UserThread> userThreads = new HashSet<>();
     private static final Set<User> users = new HashSet<>();
-    private final Set<Deck> decks = new HashSet<>();
+    protected static final Set<Deck> decks = new HashSet<>();
     static final Logger serverLogger = Logger.getLogger(Server.class.getName());
 
     /**
@@ -28,6 +28,7 @@ public class Server {
         private String userCommandName;
         private Boolean inDeck;
         private String deckName;
+        private Deck deck;
 
         /**
          * Base constructor
@@ -41,6 +42,7 @@ public class Server {
             this.userCommandName = "\\";
             this.inDeck = false;
             this.deckName = "";
+            this.deck = null;
         }
 
         /**
@@ -88,14 +90,29 @@ public class Server {
         }
 
         /**
+         * Returns user deck
+         * @return {@link #deck} {@link Deck} - current user deck
+         */
+        public Deck getDeck() {
+            return deck;
+        }
+
+        /**
          * Sets inDeck properties
          */
         public void setInDeck(Boolean inDeck, String deckName) {
             if (Boolean.TRUE.equals(inDeck)) {
                 this.deckName = deckName;
+
+                for (Deck d : getDecks()) {
+                    if (d.getName().equals(deckName)) {
+                        this.deck = d;
+                    }
+                }
             }
             else {
                 this.deckName = "";
+                this.deck = null;
             }
 
             this.inDeck = inDeck;
@@ -218,8 +235,8 @@ public class Server {
      *
      * @return {@link #decks} Set - existing decks
      */
-    public Set<Deck> getDecks() {
-        return this.decks;
+    public static Set<Deck> getDecks() {
+        return decks;
     }
 
     /**
@@ -256,7 +273,7 @@ public class Server {
      * @param toUser  UserThread - user which will see message
      * @return true Boolean - if it wrote, else returns false
      */
-    Boolean writeToUser(String message, UserThread toUser) {
+     static Boolean writeToUser(String message, UserThread toUser) {
         for (UserThread aUser : userThreads) {
             if (aUser.equals(toUser)) {
                 aUser.sendMessage(message);
@@ -363,6 +380,9 @@ public class Server {
 
             ServerThread serverConsole = new ServerThread(serverLogger, this);
             serverConsole.start();
+
+            GameStartThread gameStart = new GameStartThread();
+            gameStart.start();
 
             while (!serverConsole.isIfClose()) {
                 Socket socket = serverSocket.accept();
