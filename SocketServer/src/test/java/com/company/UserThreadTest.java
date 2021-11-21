@@ -256,12 +256,23 @@ public class UserThreadTest {
         assertEquals("unknown command!", newUser.action(name, "\\leavedeck"));
 
         assertEquals("unknown command!", newUser3.action(name3, "\\adddeck hihi 2"));
+
+        assertEquals(1, server.getDecks().size());
+    }
+
+    @Test
+    public void add2add4() {
         assertEquals("You have created a deck named: hihii for: 2 players", newUser3.action(name3, "\\adddeck hihii 2"));
         assertEquals("You have left a deck named: hihii", newUser3.action(name3, "\\leavedeck"));
         assertEquals("You have created a deck named: hihii for: 4 players", newUser3.action(name3, "\\adddeck hihii 4"));
         assertEquals("You have left a deck named: hihii", newUser3.action(name3, "\\leavedeck"));
+    }
 
-        assertEquals(1, server.getDecks().size());
+    @Test
+    public void socketClose() throws IOException {
+        assertEquals("You have created a deck named: hihi for: 3 players", newUser.action(name, "\\adddeck hihi 3"));
+        assertEquals("You have joined a deck named: hihi", newUser1.action(name1, "\\joindeck hihi"));
+        assertEquals("You have joined a deck named: hihi", newUser2.action(name2, "\\joindeck hihi"));
 
         socket.close();
 
