@@ -230,11 +230,16 @@ public class UserThreadTest {
         assertEquals("Invalid deck name or number of players", newUser.action(name, "\\adddeck hihi "));
 
         assertEquals("You have created a deck named: hihi for: 3 players", newUser.action(name, "\\adddeck hihi 3"));
+        assertEquals("unknown command!", newUser.action(name, "\\adddeck hihi 3"));
         assertEquals("unknown command!", newUser.action(name, "\\addDeck hihi 2"));
         assertEquals("unknown command!", newUser.action(name, "\\addDeck hihi"));
 
         assertEquals("unknown command!", newUser1.action(name1, "\\adddeck hihi 2"));
         assertEquals("unknown command!", newUser1.action(name1, "\\joindeck"));
+        assertEquals("You have joined a deck named: hihi", newUser1.action(name1, "\\joindeck hihi"));
+
+        assertEquals("You have left a deck named: hihi", newUser1.action(name1, "\\leavedeck"));
+
         assertEquals("You have joined a deck named: hihi", newUser1.action(name1, "\\joindeck hihi"));
         assertEquals("you already are in deck", newUser1.action(name1, "\\joindeck hihi"));
         assertEquals("You have joined a deck named: hihi", newUser2.action(name2, "\\joindeck hihi"));

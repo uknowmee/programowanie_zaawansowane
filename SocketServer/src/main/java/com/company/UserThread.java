@@ -193,7 +193,6 @@ public class UserThread extends Thread {
             }
         }
         else {
-            server.writeToUser(UNKNOWN_COMMAND, this);
             return UNKNOWN_COMMAND;
         }
     }
