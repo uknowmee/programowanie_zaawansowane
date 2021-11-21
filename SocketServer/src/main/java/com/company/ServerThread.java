@@ -55,7 +55,9 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Print commands to server console
+     * Print commands to server console and returns it
+     *
+     * @return ret String - available commands
      */
     public String showCommands() {
         String message = """
@@ -73,6 +75,11 @@ public class ServerThread extends Thread {
         return message;
     }
 
+    /**
+     * Returns running decks
+     *
+     * @return ret String - string containing all decks
+     */
     public String showDecks() {
         String decks = "";
 
@@ -84,7 +91,9 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Print users to server console
+     * Print users to server console and returns them
+     *
+     * @return ret String - string containing all users
      */
     public String showUsers() {
         String usersString = "";
@@ -125,9 +134,10 @@ public class ServerThread extends Thread {
     }
 
     /**
-     * Handles server action
+     * Handles server action and returns its summary
      *
      * @param text String - server input
+     * @return message String - based by method behaviour it returns summary of an action
      */
     public String action(Server.Split text) {
         switch (text.getCommand()) {

@@ -249,11 +249,12 @@ public class Server {
         }
     }
 
-    /**
+     /**
      * Delivers a message to user
      *
      * @param message String - Client or Server message
      * @param toUser  UserThread - user which will see message
+     * @return true Boolean - if it wrote, else returns false
      */
     Boolean writeToUser(String message, UserThread toUser) {
         for (UserThread aUser : userThreads) {
@@ -299,6 +300,12 @@ public class Server {
         users.add(new User(newUser, ""));
     }
 
+    /**
+     * Add new deck to server list: {@link #decks}
+     * @param deckName String - new deck name
+     * @param userThread UserThread - thread of deck creator
+     * @param numOfPlayers Int - maximal number of players which can be in deck
+     */
     public void addDeck(String deckName, UserThread userThread, int numOfPlayers) {
         String userName = "";
         for (User user : users) {
@@ -309,6 +316,10 @@ public class Server {
         decks.add(new Deck(serverLogger, deckName, userName, numOfPlayers));
     }
 
+    /**
+     * Remove certain deck from server
+     * @param deck {@link Deck} - delete given deck from servers list: {@link #decks}
+     */
     public void removeDeck(Deck deck) {
         decks.remove(deck);
     }

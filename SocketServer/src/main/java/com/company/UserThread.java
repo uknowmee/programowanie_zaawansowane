@@ -59,6 +59,10 @@ public class UserThread extends Thread {
         return utLogger;
     }
 
+    /**
+     * Metod used in tests, shouldnt be used often
+     * @param writer PrintWriter - userThread can write using it to ReadThread
+     */
     public void setWriter(PrintWriter writer) {
         this.writer = writer;
     }
@@ -67,6 +71,7 @@ public class UserThread extends Thread {
      * Sends a message to the client.
      *
      * @param message String - message to client
+     * @return message String - message to client
      */
     String sendMessage(String message) {
         writer.println(message);
@@ -74,7 +79,7 @@ public class UserThread extends Thread {
     }
 
     /**
-     * Print commands to server console
+     * Print commands to server console and return it
      */
     public String showCommands() {
         String message = """
@@ -96,6 +101,10 @@ public class UserThread extends Thread {
         return message;
     }
 
+    /**
+     * Returns all users in 1 string after printing them to user
+     * @return ret String - all users
+     */
     public String showUsers() {
         String usersString = "";
         Set<Server.User> users = Server.getUsers();
@@ -129,6 +138,10 @@ public class UserThread extends Thread {
         return usersString;
     }
 
+    /**
+     * Returns all deck in 1 string after printing them to user
+     * @return ret String - all decks
+     */
     public String showDecks() {
         String decks = "";
 
@@ -140,6 +153,12 @@ public class UserThread extends Thread {
         return decks;
     }
 
+    /**
+     * Add a deck to server list of decks
+     * @param userName String - name of deck creator
+     * @param split Split - object containing split message of client
+     * @return String - result of adding deck
+     */
     public String addDeck(String userName, Server.Split split) {
 
         Server.Split split1 = new Server.Split(split.getMessage());
@@ -171,6 +190,12 @@ public class UserThread extends Thread {
         }
     }
 
+    /**
+     * With this metod an user can join the deck
+     * @param userName String - username of an user
+     * @param split Split - object containing full message from user
+     * @return ret Command - returns result of a joining process
+     */
     public String joinDeck(String userName, Server.Split split) {
         for (Deck deck : server.getDecks()) {
             if (deck.getName().equals(split.getMessage()) &&
@@ -183,6 +208,11 @@ public class UserThread extends Thread {
         return UNKNOWN_COMMAND;
     }
 
+    /**
+     * With this method an UserThread class object can leave a deck
+     * @param userName String - name of a person who is leaving deck
+     * @param split Split - already Split message
+     * @return message String - based by method behaviour it returns its summary     */
     public String leaveDeck(String userName, Server.Split split) {
         for (Deck deck : server.getDecks()) {
             if (deck.getPlayerNames().contains(userName)) {
@@ -205,6 +235,7 @@ public class UserThread extends Thread {
      *
      * @param split    Split - client message container
      * @param userName - String client name
+     * @return message String - based by method behaviour it returns its summary
      */
     public String defaultAction(Server.Split split, String userName) {
         if (split.getCommand().equals("\\".concat(userName))) {
@@ -219,14 +250,16 @@ public class UserThread extends Thread {
                 }
             }
         }
+        server.writeToUser(UNKNOWN_COMMAND, this);
         return UNKNOWN_COMMAND;
     }
 
     /**
-     * Handles user action
+     * Handles user action and returns its summary
      *
      * @param userName      String - user name
      * @param clientMessage - client input
+     * @return message String - based by method behaviour it returns summary of an action
      */
     public String action(String userName, String clientMessage) {
         Server.Split split = new Server.Split(clientMessage);

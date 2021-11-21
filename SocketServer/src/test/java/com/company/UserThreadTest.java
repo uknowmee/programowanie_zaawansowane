@@ -167,7 +167,6 @@ public class UserThreadTest {
         assertTrue(newUser2.action(name2, "\\showusers").contains(user2));
     }
 
-
     @Test
     public void actionShowDecks() {
         newUser.action(name, "\\adddeck first 2");

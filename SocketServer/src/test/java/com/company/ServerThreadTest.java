@@ -136,8 +136,6 @@ public class ServerThreadTest {
 
     @Test
     public void actionShowUsersEmpty() {
-        String inDeck = ", in deck: ";
-
         server.removeUser(name, newUser);
         server.removeUser(name1, newUser1);
         server.removeUser(name2, newUser2);
