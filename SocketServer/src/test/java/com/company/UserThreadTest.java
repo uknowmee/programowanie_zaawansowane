@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -156,7 +157,7 @@ public class UserThreadTest {
         server.removeUser(name2, newUser2);
         server.removeUser(name3, newUser3);
 
-        assertEquals("[" + name + inDeck + "" + ", " + newUser + "]",
+        assertEquals("[" + name + inDeck + "]",
                 newUser.action(newUser.getName(), "\\showusers"));
     }
 
@@ -225,7 +226,7 @@ public class UserThreadTest {
     }
 
     @Test
-    public void actionAddDeck() {
+    public void actionAddDeck() throws IOException {
         assertEquals("Invalid deck name or number of players", newUser.action(name, "\\adddeck hihi "));
 
         assertEquals("You have created a deck named: hihi for: 3 players", newUser.action(name, "\\adddeck hihi 3"));
@@ -238,21 +239,34 @@ public class UserThreadTest {
         assertEquals("you already are in deck", newUser1.action(name1, "\\joindeck hihi"));
         assertEquals("You have joined a deck named: hihi", newUser2.action(name2, "\\joindeck hihi"));
         assertEquals("unknown command!", newUser3.action(name3, "\\joindeck hihi"));
+
+        assertEquals("", newUser.ping());
+
         assertEquals("unknown command!", newUser3.action(name3, "\\adddeck hihi"));
         assertEquals("You have created a deck named: hihig for: 3 players", newUser3.action(name3, "\\adddeck hihig 3"));
         assertEquals(2, server.getDecks().size());
         assertEquals("You have left a deck named: hihig", newUser3.action(name3, "\\leavedeck"));
         assertEquals("you are already not in deck", newUser3.action(name3, "\\leavedeck"));
 
-        assertEquals("You have left a deck named: hihi", newUser3.action(name, "\\leavedeck"));
-        assertEquals("You have left a deck named: hihi", newUser3.action(name1, "\\leavedeck"));
-        assertEquals("You have left a deck named: hihi", newUser3.action(name2, "\\leavedeck"));
+        assertEquals("unknown command!", newUser.action(name, "\\leavedeck"));
 
-        assertEquals("You have created a deck named: hihi for: 2 players", newUser.action(name, "\\adddeck hihi 2"));
-        assertEquals("You have left a deck named: hihi", newUser3.action(name, "\\leavedeck"));
-        assertEquals("You have created a deck named: hihi for: 4 players", newUser.action(name, "\\adddeck hihi 4"));
-        assertEquals("You have left a deck named: hihi", newUser3.action(name, "\\leavedeck"));
+        assertEquals("unknown command!", newUser3.action(name3, "\\adddeck hihi 2"));
+        assertEquals("You have created a deck named: hihii for: 2 players", newUser3.action(name3, "\\adddeck hihii 2"));
+        assertEquals("You have left a deck named: hihii", newUser3.action(name3, "\\leavedeck"));
+        assertEquals("You have created a deck named: hihii for: 4 players", newUser3.action(name3, "\\adddeck hihii 4"));
+        assertEquals("You have left a deck named: hihii", newUser3.action(name3, "\\leavedeck"));
 
+        assertEquals(1, server.getDecks().size());
+
+        socket.close();
+
+        server.removeUser(name, newUser);
+        socket.close();
+
+        String serverMessage = name + " has quit.";
+        server.broadcast(serverMessage, newUser);
+
+        assertEquals(name + " has left server, game hihi is closing.", newUser.ping());
         assertEquals(0, server.getDecks().size());
     }
 

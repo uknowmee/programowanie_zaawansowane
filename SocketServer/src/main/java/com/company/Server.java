@@ -361,10 +361,10 @@ public class Server {
             serverLogger.info("write: \\help to see commands");
 
 
-            ServerThread stop = new ServerThread(serverLogger, this);
-            stop.start();
+            ServerThread serverConsole = new ServerThread(serverLogger, this);
+            serverConsole.start();
 
-            while (!stop.isIfClose()) {
+            while (!serverConsole.isIfClose()) {
                 Socket socket = serverSocket.accept();
                 serverLogger.info("New user connected");
 
