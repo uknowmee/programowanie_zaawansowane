@@ -141,6 +141,7 @@ public class ServerThreadTest {
         server.removeUser(name, newUser);
         server.removeUser(name1, newUser1);
         server.removeUser(name2, newUser2);
+        server.removeUser(name3, newUser3);
         assertEquals("[]", serverThread.action(new Server.Split("\\showusers")));
     }
 
@@ -150,6 +151,7 @@ public class ServerThreadTest {
 
         server.removeUser(name1, newUser1);
         server.removeUser(name2, newUser2);
+        server.removeUser(name3, newUser3);
 
         assertEquals("[" + name + inDeck + "" + ", " + newUser + "]",
                 serverThread.action(new Server.Split("\\showusers")));
