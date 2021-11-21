@@ -384,8 +384,6 @@ public class UserThread extends Thread {
 
             ping();
         } catch (IOException ex) {
-            utLogger.info("Error in UserThread: " + ex.getMessage());
-            ex.printStackTrace();
 
             server.removeUser(nm, this);
 

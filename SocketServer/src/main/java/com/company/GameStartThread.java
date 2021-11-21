@@ -2,8 +2,16 @@ package com.company;
 
 import java.util.Objects;
 
+/**
+ *
+ */
 public class GameStartThread extends Thread {
 
+    /**
+     *
+     * @return ret String - returns info when starting game
+     * @throws InterruptedException - exeption
+     */
     public static String gameStart() throws InterruptedException {
 
         sleep(1000);
@@ -22,13 +30,15 @@ public class GameStartThread extends Thread {
         return "";
     }
 
+    /**
+     * Runs {@link #gameStart()} in infinite loop
+     */
     @Override
     public void run() {
         while (true) {
             try {
                 gameStart();
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 Thread.currentThread().interrupt();
             }
         }

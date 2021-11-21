@@ -2,8 +2,15 @@ package com.company;
 
 import java.util.Objects;
 
+/**
+ *
+ */
 public class GameStartedThread extends Thread {
 
+    /**
+     * Print standard response from deck to any started game
+     * @return ret String - response
+     */
     public static String gameStarted() {
 
         for (Deck deck : Server.getDecks()) {
@@ -18,13 +25,15 @@ public class GameStartedThread extends Thread {
         return "";
     }
 
+    /**
+     * Runs {@link #gameStarted()} in infinite loop
+     */
     @Override
     public void run() {
         while (true) {
             try {
                 sleep(10000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 Thread.currentThread().interrupt();
             }
             gameStarted();

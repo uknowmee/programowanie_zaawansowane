@@ -85,7 +85,8 @@ public class WriteThread extends Thread {
             socket.close();
         } catch (IOException ex) {
 
-            wtLogger.info("Error writing to server: " + ex.getMessage());
+            wtLogger.info("connection ended");
+
         }
     }
 }

@@ -69,8 +69,7 @@ public class ReadThread extends Thread {
                 }
 
             } catch (IOException ex) {
-                rtLogger.info("Error reading from server: " + ex.getMessage());
-                ex.printStackTrace();
+                rtLogger.info("connection ended.");
                 break;
             }
         }
