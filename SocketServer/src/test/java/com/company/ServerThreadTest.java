@@ -164,12 +164,12 @@ public class ServerThreadTest {
 
     @Test
     public void showDecks() {
-        newUser.action(name, "\\adddeck first 2");
-        newUser1.action(name1, "\\joindeck first");
+        newUser.userAction(name, "\\adddeck first 2");
+        newUser1.userAction(name1, "\\joindeck first");
 
-        newUser2.action(name2, "\\adddeck second 3");
+        newUser2.userAction(name2, "\\adddeck second 3");
 
-        newUser3.action(name3, "\\adddeck third 3");
+        newUser3.userAction(name3, "\\adddeck third 3");
 
         String answer = """
                 Deck named: first, with maximum of: 2 players

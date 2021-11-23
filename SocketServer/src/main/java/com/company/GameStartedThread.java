@@ -3,7 +3,7 @@ package com.company;
 import java.util.Objects;
 
 /**
- *
+ * Class which constantly writes to users while game running
  */
 public class GameStartedThread extends Thread {
 
@@ -15,7 +15,7 @@ public class GameStartedThread extends Thread {
 
         for (Deck deck : Server.getDecks()) {
             if (deck.getNumOfPlayers() == deck.getPlayers().size() && deck.isStarted()) {
-                for (String player : deck.getPlayerNames()) {
+                for (String player : deck.getResponse().getPlayingNames()) {
                     Server.writeToUser(deck.getResponseString(),
                             Objects.requireNonNull(Server.getUserFromName(player)).getUserThread());
                 }

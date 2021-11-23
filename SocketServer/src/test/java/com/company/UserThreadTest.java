@@ -139,7 +139,7 @@ public class UserThreadTest {
                 \\<username> - msg specified user
                 \\bye - exit
                 ###########################################################
-                """, newUser.action(newUser.getName(), "\\help"));
+                """, newUser.userAction(newUser.getName(), "\\help"));
     }
 
     @Test
@@ -148,7 +148,7 @@ public class UserThreadTest {
         server.removeUser(name1, newUser1);
         server.removeUser(name2, newUser2);
         server.removeUser(name3, newUser3);
-        assertEquals("[]", newUser.action(name, "\\showusers"));
+        assertEquals("[]", newUser.userAction(name, "\\showusers"));
     }
 
     @Test
@@ -160,24 +160,24 @@ public class UserThreadTest {
         server.removeUser(name3, newUser3);
 
         assertEquals("[" + name + inDeck + "]",
-                newUser.action(newUser.getName(), "\\showusers"));
+                newUser.userAction(newUser.getName(), "\\showusers"));
     }
 
     @Test
     public void actionShowUsersFew() {
-        assertTrue(newUser.action(name, "\\showusers").contains(user));
-        assertTrue(newUser1.action(name1, "\\showusers").contains(user1));
-        assertTrue(newUser2.action(name2, "\\showusers").contains(user2));
+        assertTrue(newUser.userAction(name, "\\showusers").contains(user));
+        assertTrue(newUser1.userAction(name1, "\\showusers").contains(user1));
+        assertTrue(newUser2.userAction(name2, "\\showusers").contains(user2));
     }
 
     @Test
     public void actionShowDecks() {
-        newUser.action(name, "\\adddeck first 2");
-        newUser1.action(name1, "\\joindeck first");
+        newUser.userAction(name, "\\adddeck first 2");
+        newUser1.userAction(name1, "\\joindeck first");
 
-        newUser2.action(name2, "\\adddeck second 3");
+        newUser2.userAction(name2, "\\adddeck second 3");
 
-        newUser3.action(name3, "\\adddeck third 3");
+        newUser3.userAction(name3, "\\adddeck third 3");
 
         String answer = """
                 Deck named: first, with maximum of: 2 players
@@ -198,7 +198,7 @@ public class UserThreadTest {
                 \t\tkacper
                 """;
 
-        String decks = newUser.action(name, "\\showdecks");
+        String decks = newUser.userAction(name, "\\showdecks");
 
         assertTrue(decks.contains(answer));
         assertTrue(decks.contains(answer1));
@@ -209,9 +209,9 @@ public class UserThreadTest {
 
     @Test
     public void defaultActionUnknownCommand() {
-        assertEquals("unknown command!", newUser.action(name, "\\" + name));
-        assertEquals("unknown command!", newUser.action(name, "asd"));
-        assertEquals("unknown command!", newUser.action(name, "asddasdgswf"));
+        assertEquals("unknown command!", newUser.userAction(name, "\\" + name));
+        assertEquals("unknown command!", newUser.userAction(name, "asd"));
+        assertEquals("unknown command!", newUser.userAction(name, "asddasdgswf"));
     }
 
     @Test
@@ -220,54 +220,54 @@ public class UserThreadTest {
         server.removeUser(name2, newUser2);
         server.removeUser(name3, newUser3);
 
-        assertEquals("unknown command!", newUser.action(name, "\\asda asd"));
-        assertEquals("unknown command!", newUser.action(name, "\\asd"));
+        assertEquals("unknown command!", newUser.userAction(name, "\\asda asd"));
+        assertEquals("unknown command!", newUser.userAction(name, "\\asd"));
     }
 
     @Test
     public void defaultActionWhisper() {
-        assertEquals(name + ": " + "asdasd", newUser.action(name, "\\" + name1 + " asdasd"));
+        assertEquals(name + ": " + "asdasd", newUser.userAction(name, "\\" + name1 + " asdasd"));
     }
 
     @Test
     public void actionAddDeck() {
-        assertEquals("Invalid deck name or number of players", newUser.action(name, "\\adddeck hihi "));
+        assertEquals("Invalid deck name or number of players", newUser.userAction(name, "\\adddeck hihi "));
 
-        assertEquals("You have created a deck named: hihi for: 3 players", newUser.action(name, "\\adddeck hihi 3"));
-        assertEquals("unknown command!", newUser.action(name, "\\adddeck hihi 3"));
-        assertEquals("unknown command!", newUser.action(name, "\\addDeck hihi 2"));
-        assertEquals("unknown command!", newUser.action(name, "\\addDeck hihi"));
+        assertEquals("You have created a deck named: hihi for: 3 players", newUser.userAction(name, "\\adddeck hihi 3"));
+        assertEquals("unknown command!", newUser.userAction(name, "\\adddeck hihi 3"));
+        assertEquals("unknown command!", newUser.userAction(name, "\\addDeck hihi 2"));
+        assertEquals("unknown command!", newUser.userAction(name, "\\addDeck hihi"));
 
-        assertEquals("unknown command!", newUser1.action(name1, "\\adddeck hihi 2"));
-        assertEquals("unknown command!", newUser1.action(name1, "\\joindeck"));
-        assertEquals("You have joined a deck named: hihi", newUser1.action(name1, "\\joindeck hihi"));
+        assertEquals("unknown command!", newUser1.userAction(name1, "\\adddeck hihi 2"));
+        assertEquals("unknown command!", newUser1.userAction(name1, "\\joindeck"));
+        assertEquals("You have joined a deck named: hihi", newUser1.userAction(name1, "\\joindeck hihi"));
 
-        assertEquals("You have left a deck named: hihi", newUser1.action(name1, "\\leavedeck"));
+        assertEquals("You have left a deck named: hihi", newUser1.userAction(name1, "\\leavedeck"));
 
-        assertEquals("You have joined a deck named: hihi", newUser1.action(name1, "\\joindeck hihi"));
-        assertEquals("you already are in deck", newUser1.action(name1, "\\joindeck hihi"));
-        assertEquals("You have joined a deck named: hihi", newUser2.action(name2, "\\joindeck hihi"));
-        assertEquals("unknown command!", newUser3.action(name3, "\\joindeck hihi"));
+        assertEquals("You have joined a deck named: hihi", newUser1.userAction(name1, "\\joindeck hihi"));
+        assertEquals("you already are in deck", newUser1.userAction(name1, "\\joindeck hihi"));
+        assertEquals("You have joined a deck named: hihi", newUser2.userAction(name2, "\\joindeck hihi"));
+        assertEquals("unknown command!", newUser3.userAction(name3, "\\joindeck hihi"));
 
         assertEquals("", newUser.ping());
 
-        assertEquals("unknown command!", newUser3.action(name3, "\\adddeck hihi"));
-        assertEquals("You have created a deck named: hihig for: 3 players", newUser3.action(name3, "\\adddeck hihig 3"));
+        assertEquals("unknown command!", newUser3.userAction(name3, "\\adddeck hihi"));
+        assertEquals("You have created a deck named: hihig for: 3 players", newUser3.userAction(name3, "\\adddeck hihig 3"));
         assertEquals(2, Server.getDecks().size());
-        assertEquals("You have left a deck named: hihig", newUser3.action(name3, "\\leavedeck"));
-        assertEquals("you are already not in deck", newUser3.action(name3, "\\leavedeck"));
+        assertEquals("You have left a deck named: hihig", newUser3.userAction(name3, "\\leavedeck"));
+        assertEquals("you are already not in deck", newUser3.userAction(name3, "\\leavedeck"));
 
-        assertEquals("unknown command!", newUser.action(name, "\\leavedeck"));
+        assertEquals("unknown command!", newUser.userAction(name, "\\leavedeck"));
 
-        assertEquals("unknown command!", newUser3.action(name3, "\\adddeck hihi 2"));
+        assertEquals("unknown command!", newUser3.userAction(name3, "\\adddeck hihi 2"));
 
         assertEquals(1, Server.getDecks().size());
     }
 
     @Test
     public void gameStart() throws IOException, InterruptedException {
-        newUser.action(name, "\\adddeck moj 2");
-        newUser1.action(name1, "\\joindeck moj");
+        newUser.userAction(name, "\\adddeck moj 2");
+        newUser1.userAction(name1, "\\joindeck moj");
 
         GameStartThread gameStartThread = new GameStartThread();
         GameStartedThread gameStartedThread = new GameStartedThread();
@@ -276,9 +276,6 @@ public class UserThreadTest {
         assertEquals(
                 Objects.requireNonNull(Server.getUserFromName(name)).getDeck().getResponseString(),
                 GameStartedThread.gameStarted());
-
-//        gameStartThread.stop();
-//        gameStartedThread.stop();
 
         server.removeUser(name, newUser);
         server.removeUser(name1, newUser1);
@@ -295,18 +292,18 @@ public class UserThreadTest {
 
     @Test
     public void add2add4() {
-        assertEquals("You have created a deck named: hihii for: 2 players", newUser3.action(name3, "\\adddeck hihii 2"));
-        assertEquals("You have left a deck named: hihii", newUser3.action(name3, "\\leavedeck"));
-        assertEquals("You have created a deck named: hihii for: 4 players", newUser3.action(name3, "\\adddeck hihii 4"));
-        assertEquals("You have left a deck named: hihii", newUser3.action(name3, "\\leavedeck"));
+        assertEquals("You have created a deck named: hihii for: 2 players", newUser3.userAction(name3, "\\adddeck hihii 2"));
+        assertEquals("You have left a deck named: hihii", newUser3.userAction(name3, "\\leavedeck"));
+        assertEquals("You have created a deck named: hihii for: 4 players", newUser3.userAction(name3, "\\adddeck hihii 4"));
+        assertEquals("You have left a deck named: hihii", newUser3.userAction(name3, "\\leavedeck"));
     }
 
     @Test
     public void socketClose() throws IOException {
 
-        assertEquals("You have created a deck named: mam for: 3 players", newUser.action(name, "\\adddeck mam 3"));
-        assertEquals("You have joined a deck named: mam", newUser1.action(name1, "\\joindeck mam"));
-        assertEquals("You have joined a deck named: mam", newUser2.action(name2, "\\joindeck mam"));
+        assertEquals("You have created a deck named: mam for: 3 players", newUser.userAction(name, "\\adddeck mam 3"));
+        assertEquals("You have joined a deck named: mam", newUser1.userAction(name1, "\\joindeck mam"));
+        assertEquals("You have joined a deck named: mam", newUser2.userAction(name2, "\\joindeck mam"));
 
         server.removeUser(name, newUser);
         socket.close();
@@ -320,6 +317,6 @@ public class UserThreadTest {
 
     @Test
     public void actionMsgAll() {
-        assertEquals("messaged all", newUser.action(name, "\\msgall hello everybody"));
+        assertEquals("messaged all", newUser.userAction(name, "\\msgall hello everybody"));
     }
 }

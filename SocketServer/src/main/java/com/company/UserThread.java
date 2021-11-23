@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 public class UserThread extends Thread {
     private final Server server;
     private final Socket socket;
-    private String nm="";
+    private String nm = "";
     private PrintWriter writer;
     private final Logger utLogger;
     private static final String UNKNOWN_COMMAND = "unknown command!";
@@ -76,9 +76,33 @@ public class UserThread extends Thread {
      * @param message String - message to client
      * @return message String - message to client
      */
-    String sendMessage(String message) {
+    public String sendMessage(String message) {
         writer.println(message);
         return message;
+    }
+
+    /**
+     *
+     * @param userName
+     * @param response
+     * @return
+     */
+    public Deck.Response sendMessage(String userName, Deck.Response response) {
+        if (response.getMoveAccepted()) {
+            Deck deck = Objects.requireNonNull(Server.getUserFromName(userName)).getDeck();
+            String message = response + ",last tried: " + response.getLastTried() +
+                    ", bank: " + deck.getBank() +
+                    ", bid: " + deck.getBid() +
+                    ", raise: " + deck.getRaise();
+            for (String plName : response.getPlayingNames()) {
+                Server.writeToUser(message, Objects.requireNonNull(Server.getUserFromName(plName)).getUserThread());
+            }
+            if (response.getLastTried().contains("\\cya")) {
+                Server.userChangeDeck(userName, "", false);
+            }
+        }
+
+        return response;
     }
 
     /**
@@ -283,7 +307,7 @@ public class UserThread extends Thread {
      * @param clientMessage - client input
      * @return message String - based by method behaviour it returns summary of an action
      */
-    public String action(String userName, String clientMessage) {
+    public String userAction(String userName, String clientMessage) {
         Server.Split split = new Server.Split(clientMessage);
 
         utLogger.info(userName + ": " + split.getCommand() + " " + split.getMessage());
@@ -310,31 +334,80 @@ public class UserThread extends Thread {
     }
 
     /**
+     *
+     * @param userName
+     * @param deck
+     * @return
+     */
+    public Deck.Response deckAction(String userName, Deck deck) {
+        return sendMessage(userName, deck.getResponse());
+    }
+
+    /**
+     *
+     * @param userName
+     * @param clientMessage
+     */
+    private void action(String userName, String clientMessage) {
+        boolean send = false;
+        Deck deck;
+        try {
+            if (Objects.requireNonNull(Server.getUserFromName(userName)).getDeck().isStarted()) {
+                deck = Objects.requireNonNull(Server.getUserFromName(userName)).getDeck();
+                if (deck.updateResponse(userName, clientMessage).getMoveAccepted()) {
+                    send = true;
+                    deckAction(userName, deck);
+                }
+            }
+        } catch (Exception e) {
+            if (!send) {
+                userAction(userName, clientMessage);
+                send = true;
+            }
+        }
+        if (!send) {
+            userAction(userName, clientMessage);
+        }
+    }
+
+    /**
+     *
+     * @param deck
+     * @param player
+     * @return
+     */
+    public String menagePing(Deck deck, String player) {
+        ArrayList<String> playersToBeWritten = deck.getPlayerNames();
+        playersToBeWritten.remove(player);
+        Server.User user;
+
+        for (String pl : playersToBeWritten) {
+
+            user = Objects.requireNonNull(Server.getUserFromName(pl));
+
+            Server.writeToUser(player + " has left server, game " + deck.getName() + " is closing.",
+                    user.getUserThread());
+
+            if (!deck.isKicked(pl)) {
+                Server.userChangeDeck(user.getUserName(), "", false);
+            }
+        }
+
+        server.removeDeck(deck);
+        return player + " has left server, game " + deck.getName() + " is closing.";
+    }
+
+    /**
      * Returns inf o about user and closing game
+     *
      * @return ret String - player has left server, game name is closing.
      */
     public String ping() {
 
         for (Deck deck : Server.getDecks()) {
             for (String player : deck.getPlayerNames()) {
-
-                if (!server.getUserNames().contains(player)) {
-                    ArrayList<String> playersToBeWritten = deck.getPlayerNames();
-                    playersToBeWritten.remove(player);
-                    Server.User user;
-
-                    for (String pl : playersToBeWritten) {
-
-                        user = Objects.requireNonNull(Server.getUserFromName(pl));
-
-                        Server.writeToUser(player + " has left server, game " + deck.getName() + " is closing.",
-                                user.getUserThread());
-
-                        Server.userChangeDeck(user.getUserName(), "", false);
-                    }
-
-                    server.removeDeck(deck);
-                    return player + " has left server, game " + deck.getName() + " is closing.";
+                if (!server.getUserNames().contains(player) && !deck.isKicked(player)) {
+                    return menagePing(deck, player);
                 }
             }
         }
@@ -342,7 +415,7 @@ public class UserThread extends Thread {
     }
 
     /**
-     * Reads client input Infinite loop and handles it in {@link #action(String, String)}
+     * Reads client input Infinite loop and handles it in {@link #userAction(String, String)}
      */
     @Override
     public void run() {
@@ -371,9 +444,7 @@ public class UserThread extends Thread {
             Server.writeToUser("write: \\help to see commands", this);
             do {
                 clientMessage = reader.readLine();
-
                 action(userName, clientMessage);
-
             } while (!clientMessage.equals("\\bye"));
 
             server.removeUser(userName, this);

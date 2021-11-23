@@ -3,7 +3,7 @@ package com.company;
 import java.util.Objects;
 
 /**
- *
+ * Class which write to users when game started
  */
 public class GameStartThread extends Thread {
 
@@ -22,6 +22,7 @@ public class GameStartThread extends Thread {
                             Objects.requireNonNull(Server.getUserFromName(player)).getUserThread());
                 }
                 deck.setStarted(true);
+                deck.startResponse();
                 GameStartedThread gameStartedThread = new GameStartedThread();
                 gameStartedThread.start();
                 return "game has started!";
