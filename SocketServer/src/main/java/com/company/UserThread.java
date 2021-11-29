@@ -82,24 +82,30 @@ public class UserThread extends Thread {
     }
 
     /**
+     * Sends messages to client / clients based on current {@link Deck.Response}
      *
-     * @param userName
-     * @param response
-     * @return
+     * @param userName String - name of user who made a move
+     * @param response - {@link Deck.Response} - current {@link Deck} response
+     * @return {@link Deck.Response} - current {@link Deck} response
      */
     public Deck.Response sendMessage(String userName, Deck.Response response) {
-        if (response.getMoveAccepted()) {
-            Deck deck = Objects.requireNonNull(Server.getUserFromName(userName)).getDeck();
-            String message = response + ",last tried: " + response.getLastTried() +
-                    ", bank: " + deck.getBank() +
-                    ", bid: " + deck.getBid() +
-                    ", raise: " + deck.getRaise();
+
+        Deck deck = Objects.requireNonNull(Server.getUserFromName(userName)).getDeck();
+        String message = response +
+                ",\n\tbank: " + deck.getBank() +
+                ", bid: " + deck.getBid() +
+                ", last tried: " + response.getLastTried();
+
+        if (Boolean.TRUE.equals(response.getMoveAccepted())) {
             for (String plName : response.getPlayingNames()) {
                 Server.writeToUser(message, Objects.requireNonNull(Server.getUserFromName(plName)).getUserThread());
             }
             if (response.getLastTried().contains("\\cya")) {
                 Server.userChangeDeck(userName, "", false);
             }
+        }
+        else {
+            sendMessage(message);
         }
 
         return response;
@@ -276,6 +282,24 @@ public class UserThread extends Thread {
         }
     }
 
+    public String info(String userName) {
+        String message;
+
+        if (Objects.requireNonNull(Server.getUserFromName(userName)).getInDeck().equals(true)) {
+            for (Deck deck : Server.getDecks()) {
+                if (deck.getPlayerNames().contains(userName) && deck.isStarted()) {
+                    message = deck.getResponse() +
+                            ",\n\tbank: " + deck.getBank() +
+                            ", bid: " + deck.getBid() + "\n" +
+                            "NAME: " + userName + "\n" +
+                            "Cards: \n" + deck.getPlayingCardsFromName(userName);
+                    return message;
+                }
+            }
+        }
+        return UNKNOWN_COMMAND;
+    }
+
     /**
      * Handles default user action
      *
@@ -304,7 +328,7 @@ public class UserThread extends Thread {
      * Handles user action and returns its summary
      *
      * @param userName      String - user name
-     * @param clientMessage - client input
+     * @param clientMessage String - client input
      * @return message String - based by method behaviour it returns summary of an action
      */
     public String userAction(String userName, String clientMessage) {
@@ -328,25 +352,31 @@ public class UserThread extends Thread {
             case "\\msgall":
                 server.broadcast(userName + ": " + split.getMessage(), this);
                 return "messaged all";
+            case "\\info":
+                return sendMessage(info(userName));
             default:
                 return defaultAction(split, userName);
         }
     }
 
     /**
+     * Handles user action and returns its summary
      *
-     * @param userName
-     * @param deck
-     * @return
+     * @param userName String - user name
+     * @param deck     {@link Deck} - deck in which user is playing
+     * @return {@link Deck.Response} - info about current deck state
      */
     public Deck.Response deckAction(String userName, Deck deck) {
         return sendMessage(userName, deck.getResponse());
     }
 
     /**
+     * Choose between 2 functions which handle userInput:<br>
+     * {@link #deckAction(String, Deck)} <br>
+     * {@link #userAction(String, String)}
      *
-     * @param userName
-     * @param clientMessage
+     * @param userName      String - name of a client
+     * @param clientMessage String - his message in format: command message
      */
     private void action(String userName, String clientMessage) {
         boolean send = false;
@@ -354,7 +384,10 @@ public class UserThread extends Thread {
         try {
             if (Objects.requireNonNull(Server.getUserFromName(userName)).getDeck().isStarted()) {
                 deck = Objects.requireNonNull(Server.getUserFromName(userName)).getDeck();
-                if (deck.updateResponse(userName, clientMessage).getMoveAccepted()) {
+                if (
+                        Boolean.TRUE.equals(deck.updateResponse(userName, clientMessage).getMoveAccepted()) ||
+                        deck.getResponse().getLastTried().contains(" [NOT YOUR TURN]") ||
+                        !deck.getResponse().getLastTried().equals(userName + ": " + clientMessage)) {
                     send = true;
                     deckAction(userName, deck);
                 }
@@ -371,10 +404,11 @@ public class UserThread extends Thread {
     }
 
     /**
+     * If {@link #ping()} found a player which has disconnected from a game it handles whole action
      *
-     * @param deck
-     * @param player
-     * @return
+     * @param deck   {@link Deck} - deck from which a player has disconnected
+     * @param player String - players name
+     * @return ret String - player has left server, game name is closing.
      */
     public String menagePing(Deck deck, String player) {
         ArrayList<String> playersToBeWritten = deck.getPlayerNames();
@@ -388,7 +422,7 @@ public class UserThread extends Thread {
             Server.writeToUser(player + " has left server, game " + deck.getName() + " is closing.",
                     user.getUserThread());
 
-            if (!deck.isKicked(pl)) {
+            if (Boolean.FALSE.equals(deck.isKicked(pl))) {
                 Server.userChangeDeck(user.getUserName(), "", false);
             }
         }
@@ -400,13 +434,13 @@ public class UserThread extends Thread {
     /**
      * Returns inf o about user and closing game
      *
-     * @return ret String - player has left server, game name is closing.
+     * @return {@link #menagePing(Deck, String)}
      */
     public String ping() {
 
         for (Deck deck : Server.getDecks()) {
             for (String player : deck.getPlayerNames()) {
-                if (!server.getUserNames().contains(player) && !deck.isKicked(player)) {
+                if (!server.getUserNames().contains(player) && Boolean.TRUE.equals(!deck.isKicked(player))) {
                     return menagePing(deck, player);
                 }
             }

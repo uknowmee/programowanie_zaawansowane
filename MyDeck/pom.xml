@@ -17,6 +17,11 @@
             <version>1.2.17</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.company</groupId>
+            <artifactId>CommonUtil</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <properties>

@@ -275,7 +275,7 @@ public class UserThreadTest {
         assertEquals("game has started!", GameStartThread.gameStart());
         assertEquals(
                 Objects.requireNonNull(Server.getUserFromName(name)).getDeck().getResponseString(),
-                GameStartedThread.gameStarted());
+                GameStartedThread.gameStarted(System.currentTimeMillis() + 15 * 1001));
 
         server.removeUser(name, newUser);
         server.removeUser(name1, newUser1);

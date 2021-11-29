@@ -83,6 +83,7 @@ public class Server {
 
         /**
          * returns deck name
+         *
          * @return {@link #deckName} String - current deck name
          */
         public String getDeckName() {
@@ -91,6 +92,7 @@ public class Server {
 
         /**
          * Returns user deck
+         *
          * @return {@link #deck} {@link Deck} - current user deck
          */
         public Deck getDeck() {
@@ -119,54 +121,9 @@ public class Server {
         }
     }
 
-    /**
-     * Helper class which might contain:<br>
-     * user command and message got user input in {@link UserThread} <br>
-     * server command and message got from console in {@link ServerThread}<br>
-     * while handling their single String input
-     */
-    public static class Split {
-        private final String command;
-        private String message;
-
-        /**
-         * Base constructor
-         *
-         * @param text {@link String} - users input will be split to:<br>
-         *             {@link #command} - users command<br>
-         *             {@link #message} - users message
-         */
+    public static class Split extends com.company.Split {
         public Split(String text) {
-            String[] splitText = text.split(" ");
-
-            this.command = splitText[0];
-            this.message = "";
-
-            for (int i = 1; i < splitText.length; i++) {
-                if (i == splitText.length - 1) {
-                    message = message.concat(splitText[i]);
-                    break;
-                }
-                message = message.concat(splitText[i] + " ");
-            }
-        }
-
-        /**
-         * Returns user command
-         *
-         * @return {@link #command} String - command of the user
-         */
-        public String getCommand() {
-            return command;
-        }
-
-        /**
-         * Returns user command
-         *
-         * @return {@link #message} String - message of the user
-         */
-        public String getMessage() {
-            return message;
+            super(text);
         }
     }
 
@@ -266,14 +223,14 @@ public class Server {
         }
     }
 
-     /**
+    /**
      * Delivers a message to user
      *
      * @param message String - Client or Server message
      * @param toUser  UserThread - user which will see message
      * @return true Boolean - if it wrote, else returns false
      */
-     static Boolean writeToUser(String message, UserThread toUser) {
+    static Boolean writeToUser(String message, UserThread toUser) {
         for (UserThread aUser : userThreads) {
             if (aUser.equals(toUser)) {
                 aUser.sendMessage(message);
@@ -319,8 +276,9 @@ public class Server {
 
     /**
      * Add new deck to server list: {@link #decks}
-     * @param deckName String - new deck name
-     * @param userThread UserThread - thread of deck creator
+     *
+     * @param deckName     String - new deck name
+     * @param userThread   UserThread - thread of deck creator
      * @param numOfPlayers Int - maximal number of players which can be in deck
      */
     public void addDeck(String deckName, UserThread userThread, int numOfPlayers) {
@@ -335,6 +293,7 @@ public class Server {
 
     /**
      * Remove certain deck from server
+     *
      * @param deck {@link Deck} - delete given deck from servers list: {@link #decks}
      */
     public void removeDeck(Deck deck) {
