@@ -130,6 +130,7 @@ public class ServerThreadTest {
                 \\showdecks - print all running decks
                 \\msgall - msg all connected users
                 \\<username> - msg specified user
+                \\info - show in game info about current players (if in game)
                 \\CLOSE - exit
                 ###########################################################""", serverThread.action(new Server.Split("\\help")));
     }

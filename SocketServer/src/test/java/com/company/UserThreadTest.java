@@ -137,6 +137,7 @@ public class UserThreadTest {
                 \\leavedeck
                 \\msgall - msg all connected users
                 \\<username> - msg specified user
+                \\info - show in game info about current player (if in game)
                 \\bye - exit
                 ###########################################################
                 """, newUser.userAction(newUser.getName(), "\\help"));

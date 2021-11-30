@@ -60,15 +60,6 @@ public class WriteThread extends Thread {
         return wtLogger;
     }
 
-    public void cls() {
-        try {
-            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-        } catch (Exception E) {
-            wtLogger.info(E);
-            Thread.currentThread().interrupt();
-        }
-    }
-
     /**
      * Infinite loop writing the user input to server console
      */
@@ -86,7 +77,6 @@ public class WriteThread extends Thread {
         do {
             text = console.readLine();
             text = text.replace("\n", "").replace("\r", "");
-            cls();
             writer.println(text);
 
         } while (!text.equals("\\bye"));

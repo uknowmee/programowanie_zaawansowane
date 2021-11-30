@@ -3,6 +3,7 @@ package com.company;
 
 import org.apache.log4j.Logger;
 
+import java.security.PublicKey;
 import java.util.*;
 
 
@@ -21,7 +22,6 @@ public class Deck {
     private boolean started;
     private int bank;
     private int bid;
-    private boolean all;
     private Response response;
 
     /**
@@ -59,9 +59,9 @@ public class Deck {
         private enum Suit {
 
             PIK("Pik", 0),
-            TREFL("Trefl",1),
-            KIER("Kier",2),
-            KARO("Karo",3);
+            TREFL("Trefl", 1),
+            KIER("Kier", 2),
+            KARO("Karo", 3);
 
             private final String suitOfCard;
             private final int numOfColor;
@@ -132,6 +132,7 @@ public class Deck {
         private boolean bet;
         private boolean raise;
         private boolean all;
+        private boolean exchange;
         private boolean turn;
         private final boolean kicked;
         private int credit;
@@ -156,14 +157,6 @@ public class Deck {
             this.raise = false;
             this.turn = false;
             this.kicked = false;
-        }
-
-        /**
-         *
-         * @return
-         */
-        public ArrayList<Card> getPlayerCards() {
-            return playerCards;
         }
 
         /**
@@ -204,7 +197,8 @@ public class Deck {
         private String whoNow;
         private String whoNext;
         private Boolean moveAccepted;
-        private String winner;
+        private Boolean all;
+        private ArrayList<String> winner;
         private String lastTried;
         private long time;
 
@@ -215,8 +209,9 @@ public class Deck {
             this.round = 0;
             this.part = 0;
             this.moveAccepted = false;
-            this.winner = "";
+            this.winner = new ArrayList<>();
             this.lastTried = "";
+            this.all = false;
         }
 
         /**
@@ -231,6 +226,7 @@ public class Deck {
             this.whoLast = "";
             this.whoNow = this.players.get(0).playerName;
             this.whoNext = this.players.get(1).playerName;
+            this.all = false;
         }
 
         public int getRound() {
@@ -277,7 +273,7 @@ public class Deck {
             return moveAccepted;
         }
 
-        public String getWinner() {
+        public ArrayList<String> getWinner() {
             return winner;
         }
 
@@ -324,6 +320,41 @@ public class Deck {
             }
         }
 
+        private int getHighestPoints(ArrayList<Player> players) {
+            int maxPoints = players.get(0).points;
+            for (Player pl : players) {
+                if (pl.points > maxPoints && !pl.fold) {
+                    maxPoints = pl.points;
+                }
+            }
+            return maxPoints;
+        }
+
+        private int getHighestType(ArrayList<Player> players, int maxPoints) {
+            int maxType = 0;
+            for (Player pl : players) {
+                if (pl.type > maxType && pl.points == maxPoints && !pl.fold) {
+                    maxType = pl.type;
+                }
+            }
+            return maxType;
+        }
+
+        private ArrayList<String> winEval() {
+            ArrayList<Player> players = new ArrayList<>(playing);
+            ArrayList<String> maxPlayers = new ArrayList<>();
+
+            int maxPoints = getHighestPoints(players);
+            int typeOfMaxPoints = getHighestType(players, maxPoints);
+            for (Player pl : players) {
+                if (pl.points == maxPoints && pl.type == typeOfMaxPoints && !pl.fold) {
+                    maxPlayers.add(pl.playerName);
+                }
+            }
+
+            return maxPlayers;
+        }
+
         /**
          * @param userName
          * @param message
@@ -332,6 +363,33 @@ public class Deck {
         private void playerUpdate(String userName, String message, Boolean accepted) {
             update(accepted);
             lastTried = userName + ": " + message;
+            if ((playing.get(0).bet || playing.get(0).raise || playing.get(0).check) && part % 2 == 1) {
+                for (Player pl : playing) {
+                    if (!pl.fold) {
+                        pl.check = false;
+                        pl.bet = false;
+                        pl.raise = false;
+                        pl.call = false;
+                        pl.all = false;
+                        pl.exchange = true;
+                    }
+                }
+            }
+            else if ((playing.get(0).bet || playing.get(0).raise || playing.get(0).check || all) && part % 2 == 0) {
+                for (Player pl : playing) {
+                    pl.check = false;
+                    pl.bet = false;
+                    pl.raise = false;
+                    pl.call = false;
+                    pl.all = false;
+                    pl.exchange = false;
+                    pl.fold = false;
+                }
+                all = false;
+                round++;
+                part++;
+                winner = winEval();
+            }
             time = System.currentTimeMillis();
         }
 
@@ -372,7 +430,6 @@ public class Deck {
 
         this.bid = 0;
         this.bank = 0;
-        this.all = false;
 
         this.started = false;
     }
@@ -412,13 +469,39 @@ public class Deck {
         StringBuilder ret = new StringBuilder();
         for (Player player : response.playing) {
             if (player.playerName.equals(name)) {
-                for (Card card : player.getPlayerCards()) {
+                for (Card card : player.playerCards) {
                     ret.append("\t").append(card).append("\n");
                 }
                 return ret.toString();
             }
         }
         return null;
+    }
+
+    /**
+     * @return
+     */
+    public ArrayList<String> getPlayingNames() {
+        ArrayList<String> names = new ArrayList<>();
+
+        for (Player pl : response.playing) {
+            names.add(pl.playerName);
+        }
+
+        return names;
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    public int getPlayerCreditFromName(String name) {
+        for (Player player : response.playing) {
+            if (player.playerName.equals(name)) {
+                return player.credit;
+            }
+        }
+        return 0;
     }
 
     /**
@@ -477,6 +560,13 @@ public class Deck {
      */
     public int getBid() {
         return bid;
+    }
+
+    /**
+     * @return
+     */
+    public boolean getAll() {
+        return response.all;
     }
 
     /**
@@ -558,10 +648,12 @@ public class Deck {
     public void dealTheCards() {
 
         if (!response.playing.isEmpty()) {
-            int cardsToDeal = 5;
-            for (int i = 0; i < cardsToDeal; i++) {
-                for (Player player : response.playing) {
-                    player.playerCards.add(cards.remove(cards.size() - 1));
+            for (Player player : response.playing) {
+                if (!player.fold) {
+                    int num = 5 - player.playerCards.size();
+                    for (int i = 0; i < num; i++) {
+                        player.playerCards.add(cards.remove(cards.size() - 1));
+                    }
                 }
             }
         }
@@ -575,9 +667,9 @@ public class Deck {
         for (Player player : response.playing) {
             for (int i = 0; i < player.playerCards.size() - 1; i++) {
                 for (int j = 0; j < player.playerCards.size() - 1 - i; j++) {
-                    if (player.playerCards.get(j).num > player.playerCards.get(j+1).num) {
-                        card = player.playerCards.get(j+1);
-                        player.playerCards.set(j+1, player.playerCards.get(j));
+                    if (player.playerCards.get(j).num > player.playerCards.get(j + 1).num) {
+                        card = player.playerCards.get(j + 1);
+                        player.playerCards.set(j + 1, player.playerCards.get(j));
                         player.playerCards.set(j, card);
                     }
                 }
@@ -594,6 +686,21 @@ public class Deck {
             for (Player player : response.playing) {
                 for (int i = player.playerCards.size() - 1; i >= 0; i--) {
                     cards.add(player.playerCards.remove(i));
+                }
+            }
+        }
+    }
+
+    /**
+     * @param userName
+     */
+    public void collectCardsFromUser(String userName) {
+        if (!response.playing.isEmpty()) {
+            for (Player player : response.playing) {
+                if (player.playerName.equals(userName)) {
+                    for (int i = player.playerCards.size() - 1; i >= 0; i--) {
+                        cards.add(player.playerCards.remove(i));
+                    }
                 }
             }
         }
@@ -640,9 +747,11 @@ public class Deck {
     }
 
     public Response fold(String userName, Split split) {
-        if (response.playing.get(0).credit > 0) {
+        rank();
+        if (response.playing.get(0).credit > 0 && !response.playing.get(0).exchange) {
             response.playing.get(0).fold = true;
             response.playing.get(0).turn = false;
+            collectCardsFromUser(userName);
             response.playerUpdate(userName, split.getCommand(), true);
 
         }
@@ -653,7 +762,8 @@ public class Deck {
     }
 
     public Response check(String userName, Split split) {
-        if (bid == 0 && response.playing.get(0).credit > 0) {
+        rank();
+        if (bid == 0 && response.playing.get(0).credit > 0 && !response.playing.get(0).exchange) {
             response.playing.get(0).check = true;
             response.playing.get(0).turn = false;
             response.playerUpdate(userName, split.getCommand(), true);
@@ -665,7 +775,8 @@ public class Deck {
     }
 
     public Response call(String userName, Split split) {
-        if (response.playing.get(0).credit > bid && bid != 0) {
+        rank();
+        if (response.playing.get(0).credit > bid && bid != 0 && !response.playing.get(0).exchange) {
             response.playing.get(0).call = true;
             response.playing.get(0).turn = false;
             response.playing.get(0).credit -= response.playing.get(0).diff;
@@ -680,7 +791,8 @@ public class Deck {
     }
 
     public Response bet(String userName, Split split) {
-        if (bid == 0 && response.playing.get(0).credit > 2) {
+        rank();
+        if (bid == 0 && response.playing.get(0).credit > 2 && !getAll() && !response.playing.get(0).exchange) {
             int myInt;
             try {
                 myInt = Integer.parseInt(split.getMessage());
@@ -716,7 +828,8 @@ public class Deck {
     }
 
     public Response raise(String userName, Split split) {
-        if (bid != 0 && response.playing.get(0).credit > 2 * bid && !all) {
+        rank();
+        if (bid != 0 && response.playing.get(0).credit > 2 * bid && !getAll() && !response.playing.get(0).exchange) {
             int myInt;
             try {
                 myInt = Integer.parseInt(split.getMessage());
@@ -737,7 +850,7 @@ public class Deck {
                     bid = myInt;
                     response.playerUpdate(userName, split.getCommand() + " " + myInt, true);
                 }
-                else if (myInt <= 2) {
+                else if (myInt < response.playing.get(0).credit) {
                     response.playerUpdate(userName, split.getCommand() + " " + myInt + " [is too small]", false);
                 }
                 else if (myInt >= response.playing.get(0).credit) {
@@ -755,12 +868,14 @@ public class Deck {
     }
 
     public Response all(String userName, Split split) {
-        if (response.playing.get(0).credit - bid <= 0 && bid != 0) {
+        rank();
+        if (response.playing.get(0).credit - bid <= 0 && bid != 0 && !response.playing.get(0).exchange) {
             response.playing.get(0).all = true;
             response.playing.get(0).turn = false;
             bank += response.playing.get(0).credit;
             response.playing.get(0).credit = 0;
-            all = true;
+            response.playing.get(0).diff = 0;
+            response.all = true;
             response.playerUpdate(userName, split.getCommand(), true);
         }
         else {
@@ -770,7 +885,9 @@ public class Deck {
     }
 
     public Response cya(String userName, Split split) {
-        if (response.playing.get(0).credit < 0) {
+        rank();
+        if (response.playing.get(0).credit < 0 && !response.playing.get(0).exchange) {
+            collectCardsFromUser(userName);
             response.playerUpdate(userName, split.getCommand(), true);
         }
         else {
@@ -780,7 +897,72 @@ public class Deck {
         return response;
     }
 
+    public ArrayList<Integer> exchangeGetNums(String userName, ArrayList<Integer> intToBeRemoved, String[] splitText) {
+        if (!splitText[0].equals("")) {
+            int temp;
+            for (String s : splitText) {
+                try {
+                    temp = Integer.parseInt(s);
+                    if (temp >= 0 && temp <= 4) {
+                        intToBeRemoved.add(temp);
+                    }
+                    else {
+                        response.playerUpdate(userName, "wrong card number", false);
+                        intToBeRemoved.clear();
+                        break;
+                    }
+                } catch (Exception e) {
+                    response.playerUpdate(userName, "wrong card number", false);
+                    intToBeRemoved.clear();
+                    break;
+                }
+            }
+        }
+        return intToBeRemoved;
+    }
+
+    public void exchangeRemoveCards(String userName, Split split) {
+        String[] splitText = split.getMessage().split(" ");
+        ArrayList<Integer> intToBeRemoved = new ArrayList<>();
+
+        intToBeRemoved = exchangeGetNums(userName, intToBeRemoved, splitText);
+
+        if (!intToBeRemoved.isEmpty() || splitText[0].equals("")) {
+
+            for (int toAdd : intToBeRemoved) {
+                cards.add(response.playing.get(0).playerCards.get(toAdd));
+            }
+
+            for (int i = response.playing.get(0).playerCards.size() - 1; i >= 0; i--) {
+                if (intToBeRemoved.contains(i)) {
+                    response.playing.get(0).playerCards.remove(i);
+                }
+            }
+
+            response.playing.get(0).exchange = false;
+            response.playerUpdate(userName, split.getCommand(), true);
+        }
+    }
+
     public Response exchange(String userName, Split split) {
+
+        if (response.playing.get(0).exchange) {
+
+            exchangeRemoveCards(userName, split);
+
+            if (!response.playing.get(0).exchange) {
+                shuffle();
+                dealTheCards();
+
+                response.part++;
+                bid = 0;
+                rank();
+                response.playerUpdate(userName, split.getCommand(), false);
+            }
+        }
+        else {
+            response.playerUpdate(userName, split.getCommand() + " [not allowed]", false);
+        }
         return response;
     }
 
@@ -792,7 +974,7 @@ public class Deck {
     public Response updateResponse(String userName, String text) {
 
         if (response.playing.size() == 1) {
-            response.winner = response.playing.get(0).playerName;
+            response.winner.add(response.playing.get(0).playerName);
             return response;
         }
 
@@ -810,7 +992,6 @@ public class Deck {
                     case "\\cya" -> cya(userName, split);
                     case "\\exchange" -> exchange(userName, split);
                     default -> response.playerUpdate(userName, text, false);
-
                 }
                 break;
             }
@@ -820,12 +1001,55 @@ public class Deck {
 
                     response.playerUpdate(userName, text + " [NOT YOUR TURN]", false);
                 }
-                else if (Objects.equals("\\info", split.getCommand())) {
+                else {
                     response.playerUpdate(userName, text, false);
                 }
             }
         }
         return response;
+    }
+
+    public void rank() {
+        sortCards();
+
+        for (Player pl : response.playing) {
+            if (!pl.fold) {
+                Evaluate evaluate = new Evaluate(pl.playerCards);
+                evaluate.eval();
+                pl.points = evaluate.getPoints();
+                pl.type = evaluate.getType();
+            }
+        }
+    }
+
+    public void gameReset() {
+        bid = 0;
+        response.moveAccepted = false;
+        response.lastTried = "";
+
+        for (Player pl : response.playing) {
+            if (response.winner.contains(pl.playerName)) {
+                pl.credit += bank / response.winner.size();
+            }
+        }
+        bank = 0;
+        response.winner = new ArrayList<>();
+
+        collectTheCards();
+        shuffle();
+        dealTheCards();
+
+        bank += response.playing.size() * 2;
+        for (Player player : response.playing) {
+            player.credit -= 2;
+        }
+
+        players.get(0).turn = true;
+        response.whoLast = "";
+        response.whoNow = response.playing.get(0).playerName;
+        response.whoNext = response.playing.get(1).playerName;
+
+        rank();
     }
 
     /**
@@ -840,14 +1064,8 @@ public class Deck {
         this.response = new Response(players);
         shuffle();
         dealTheCards();
-        sortCards();
 
-        for (Player pl : response.playing) {
-            Evaluate evaluate = new Evaluate(pl.playerCards);
-            evaluate.eval();
-            pl.points = evaluate.getPoints();
-            pl.type = evaluate.getType();
-        }
+        rank();
 
         this.response.time = System.currentTimeMillis();
     }

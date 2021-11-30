@@ -19,7 +19,7 @@ public class GameStartedThread extends Thread {
                     deck.isStarted() &&
                     deck.getResponse().getTime() + 15 * 1000 < time) {
                 for (String player : deck.getResponse().getPlayingNames()) {
-                    Server.writeToUser(deck.getResponseString(),
+                    Server.writeToUser(deck.getResponseString() +"\n",
                             Objects.requireNonNull(Server.getUserFromName(player)).getUserThread());
                 }
                 return deck.getResponseString();
@@ -35,7 +35,7 @@ public class GameStartedThread extends Thread {
     public void run() {
         while (true) {
             try {
-                sleep(10000);
+                sleep(15000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

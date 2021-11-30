@@ -3,6 +3,7 @@ package com.company;
 import org.apache.log4j.Logger;
 
 import java.io.Console;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -68,6 +69,7 @@ public class ServerThread extends Thread {
                 \\showdecks - print all running decks
                 \\msgall - msg all connected users
                 \\<username> - msg specified user
+                \\info - show in game info about current players (if in game)
                 \\CLOSE - exit
                 ###########################################################""";
 
@@ -133,6 +135,18 @@ public class ServerThread extends Thread {
         return usersString;
     }
 
+    public String info() {
+        for (Deck deck : Server.getDecks()) {
+            if (deck.isStarted()) {
+                for (String plName : deck.getResponse().getPlayingNames()) {
+                    UserThread thread = Objects.requireNonNull(Server.getUserFromName(plName)).getUserThread();
+                    thread.sendMessage(thread.info(plName));
+                }
+            }
+        }
+        return "messaged all";
+    }
+
     /**
      * Handles server action and returns its summary
      *
@@ -154,6 +168,9 @@ public class ServerThread extends Thread {
             case "\\msgall" -> {
                 server.broadcast(SERVER_STRING + text.getMessage(), null);
                 return "messaged all";
+            }
+            case "\\info" -> {
+                return info();
             }
             default -> {
                 for (Server.User us : Server.getUsers()) {

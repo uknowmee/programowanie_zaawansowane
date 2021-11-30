@@ -81,6 +81,21 @@ public class UserThread extends Thread {
         return message;
     }
 
+    public String anyWinner(Deck deck) {
+
+        String message;
+        for (String plName : deck.getResponse().getPlayingNames()) {
+            for (String userName : deck.getResponse().getWinner()) {
+                message = userName + " won round with:\n\tCards: \n" + deck.getPlayingCardsFromName(userName);
+                Server.writeToUser(message + "[NEW ROUND IS STARTING]\n", Objects.requireNonNull(Server.getUserFromName(plName)).getUserThread());
+            }
+        }
+
+        deck.gameReset();
+
+        return "message sent";
+    }
+
     /**
      * Sends messages to client / clients based on current {@link Deck.Response}
      *
@@ -94,14 +109,30 @@ public class UserThread extends Thread {
         String message = response +
                 ",\n\tbank: " + deck.getBank() +
                 ", bid: " + deck.getBid() +
-                ", last tried: " + response.getLastTried();
+                ", last tried: " + response.getLastTried() + "\n";
 
         if (Boolean.TRUE.equals(response.getMoveAccepted())) {
+
             for (String plName : response.getPlayingNames()) {
                 Server.writeToUser(message, Objects.requireNonNull(Server.getUserFromName(plName)).getUserThread());
             }
+
+            if (deck.getResponse().getWinner().size() != 0) {
+                anyWinner(deck);
+            }
+
             if (response.getLastTried().contains("\\cya")) {
+
                 Server.userChangeDeck(userName, "", false);
+
+                if (deck.getResponse().getPlaying().size() == 1) {
+
+                    Server.writeToUser("you have won WHOLE GAME!",
+                            Objects.requireNonNull(Server.getUserFromName(deck.getPlayingNames().get(0))).getUserThread());
+
+                    Server.userChangeDeck(deck.getPlayingNames().get(0), "", false);
+                    server.removeDeck(deck);
+                }
             }
         }
         else {
@@ -126,6 +157,7 @@ public class UserThread extends Thread {
                 \\leavedeck
                 \\msgall - msg all connected users
                 \\<username> - msg specified user
+                \\info - show in game info about current player (if in game)
                 \\bye - exit
                 ###########################################################
                 """;
@@ -282,6 +314,10 @@ public class UserThread extends Thread {
         }
     }
 
+    /**
+     * @param userName
+     * @return
+     */
     public String info(String userName) {
         String message;
 
@@ -292,6 +328,7 @@ public class UserThread extends Thread {
                             ",\n\tbank: " + deck.getBank() +
                             ", bid: " + deck.getBid() + "\n" +
                             "NAME: " + userName + "\n" +
+                            "credit: " + deck.getPlayerCreditFromName(userName) + "\n" +
                             "Cards: \n" + deck.getPlayingCardsFromName(userName);
                     return message;
                 }
@@ -386,8 +423,8 @@ public class UserThread extends Thread {
                 deck = Objects.requireNonNull(Server.getUserFromName(userName)).getDeck();
                 if (
                         Boolean.TRUE.equals(deck.updateResponse(userName, clientMessage).getMoveAccepted()) ||
-                        deck.getResponse().getLastTried().contains(" [NOT YOUR TURN]") ||
-                        !deck.getResponse().getLastTried().equals(userName + ": " + clientMessage)) {
+                                deck.getResponse().getLastTried().contains(" [NOT YOUR TURN]") ||
+                                !deck.getResponse().getLastTried().equals(userName + ": " + clientMessage)) {
                     send = true;
                     deckAction(userName, deck);
                 }
@@ -446,6 +483,20 @@ public class UserThread extends Thread {
             }
         }
         return "";
+    }
+
+    /**
+     * @param core
+     * @return
+     */
+    public String getFirstAvailableName(String core) {
+        String userName = core;
+        int i = 1;
+        while (server.getUserNames().contains(userName)) {
+            userName = userName.concat(String.valueOf(i));
+            i += 1;
+        }
+        return userName;
     }
 
     /**
