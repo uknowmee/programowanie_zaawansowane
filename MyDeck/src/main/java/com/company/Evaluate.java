@@ -1,6 +1,7 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Evaluate {
 
@@ -39,10 +40,10 @@ public class Evaluate {
 
     }
 
-    public Evaluate(ArrayList<Deck.Card> playerCards) {
+    public Evaluate(List<Deck.Card> playerCards) {
         this.points = 0;
         this.type = 0;
-        this.cards = playerCards;
+        this.cards = new ArrayList<>(playerCards);
         this.color = 0;
         this.diffRanks = 0;
         this.maxOfOneRank = 0;

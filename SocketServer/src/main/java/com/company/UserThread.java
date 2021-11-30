@@ -2,7 +2,7 @@ package com.company;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -117,7 +117,7 @@ public class UserThread extends Thread {
                 Server.writeToUser(message, Objects.requireNonNull(Server.getUserFromName(plName)).getUserThread());
             }
 
-            if (deck.getResponse().getWinner().size() != 0) {
+            if (!deck.getResponse().getWinner().isEmpty()) {
                 anyWinner(deck);
             }
 
@@ -448,7 +448,7 @@ public class UserThread extends Thread {
      * @return ret String - player has left server, game name is closing.
      */
     public String menagePing(Deck deck, String player) {
-        ArrayList<String> playersToBeWritten = deck.getPlayerNames();
+        List<String> playersToBeWritten = deck.getPlayerNames();
         playersToBeWritten.remove(player);
         Server.User user;
 
@@ -513,13 +513,9 @@ public class UserThread extends Thread {
 
             String userName = reader.readLine();
 
-            int i = 1;
-            while (server.getUserNames().contains(userName)) {
-                userName = userName.concat(String.valueOf(i));
-                i += 1;
-            }
-            server.addUserName(userName, this);
-            sendMessage("Your userName is: " + userName);
+            String newUserName = getFirstAvailableName(userName);
+            server.addUserName(newUserName, this);
+            sendMessage("Your userName is: " + newUserName);
 
             this.nm = userName;
 

@@ -2,8 +2,6 @@ package com.company;
 
 
 import org.apache.log4j.Logger;
-
-import java.security.PublicKey;
 import java.util.*;
 
 
@@ -16,13 +14,15 @@ public class Deck {
     private final Logger logger;
 
     private final String name;
-    private final ArrayList<Player> players;
+    private final List<Player> players;
     private final int numOfPlayers;
-    private ArrayList<Card> cards;
+    private List<Card> cards;
     private boolean started;
     private int bank;
     private int bid;
     private Response response;
+    private static final String NOT_ALLOWED = " [not allowed]";
+
 
     /**
      * Class describing a single Card
@@ -80,27 +80,6 @@ public class Deck {
             return suit.numOfColor;
         }
 
-        /**
-         * Checks if 2 cards are equal
-         *
-         * @param o {@link Card} - card to be compared with this
-         * @return ret Boolean - true if they are equals
-         */
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof Card card)) {
-                return false;
-            }
-
-            if (rank != card.rank) {
-                return false;
-            }
-            return suit == card.suit;
-        }
-
         @Override
         public String toString() {
             return this.rank + " (" + this.rank.value + ") " + this.suit;
@@ -124,7 +103,7 @@ public class Deck {
      */
     private static class Player {
 
-        private final ArrayList<Card> playerCards;
+        private final List<Card> playerCards;
         private final String playerName;
         private boolean fold;
         private boolean check;
@@ -167,15 +146,6 @@ public class Deck {
         }
 
         /**
-         * @param value
-         * @return
-         */
-        private int reduceCredit(int value) {
-            credit -= value;
-            return credit;
-        }
-
-        /**
          * @return
          */
         @Override
@@ -190,9 +160,9 @@ public class Deck {
     static class Response {
         private int round;
         private int part;
-        private ArrayList<Player> players;
-        private ArrayList<Player> playing;
-        private ArrayList<Player> notPlaying;
+        private List<Player> players;
+        private List<Player> playing;
+        private List<Player> notPlaying;
         private String whoLast;
         private String whoNow;
         private String whoNext;
@@ -237,15 +207,15 @@ public class Deck {
             return part;
         }
 
-        public ArrayList<Player> getPlayers() {
+        public List<Player> getPlayers() {
             return players;
         }
 
-        public ArrayList<Player> getPlaying() {
+        public List<Player> getPlaying() {
             return playing;
         }
 
-        public ArrayList<String> getPlayingNames() {
+        public List<String> getPlayingNames() {
             ArrayList<String> playerNames = new ArrayList<>();
             for (Player player : playing) {
                 playerNames.add(player.playerName);
@@ -253,7 +223,7 @@ public class Deck {
             return playerNames;
         }
 
-        public ArrayList<Player> getNotPlaying() {
+        public List<Player> getNotPlaying() {
             return notPlaying;
         }
 
@@ -273,7 +243,7 @@ public class Deck {
             return moveAccepted;
         }
 
-        public ArrayList<String> getWinner() {
+        public List<String> getWinner() {
             return winner;
         }
 
@@ -341,12 +311,12 @@ public class Deck {
         }
 
         private ArrayList<String> winEval() {
-            ArrayList<Player> players = new ArrayList<>(playing);
+            ArrayList<Player> pls = new ArrayList<>(playing);
             ArrayList<String> maxPlayers = new ArrayList<>();
 
-            int maxPoints = getHighestPoints(players);
-            int typeOfMaxPoints = getHighestType(players, maxPoints);
-            for (Player pl : players) {
+            int maxPoints = getHighestPoints(pls);
+            int typeOfMaxPoints = getHighestType(pls, maxPoints);
+            for (Player pl : pls) {
                 if (pl.points == maxPoints && pl.type == typeOfMaxPoints && !pl.fold) {
                     maxPlayers.add(pl.playerName);
                 }
@@ -457,7 +427,7 @@ public class Deck {
      *
      * @return {@link #players} ArrayList - players on deck
      */
-    public ArrayList<Player> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
@@ -481,7 +451,7 @@ public class Deck {
     /**
      * @return
      */
-    public ArrayList<String> getPlayingNames() {
+    public List<String> getPlayingNames() {
         ArrayList<String> names = new ArrayList<>();
 
         for (Player pl : response.playing) {
@@ -509,7 +479,7 @@ public class Deck {
      *
      * @return playerNames ArrayList - player names on deck
      */
-    public ArrayList<String> getPlayerNames() {
+    public List<String> getPlayerNames() {
         ArrayList<String> playerNames = new ArrayList<>();
         for (Player player : players) {
             playerNames.add(player.playerName);
@@ -651,7 +621,7 @@ public class Deck {
             for (Player player : response.playing) {
                 if (!player.fold) {
                     int num = 5 - player.playerCards.size();
-                    for (int i = 0; i < num; i++) {
+                    for (int i = num; i > 0; i--) {
                         player.playerCards.add(cards.remove(cards.size() - 1));
                     }
                 }
@@ -756,7 +726,7 @@ public class Deck {
 
         }
         else {
-            response.playerUpdate(userName, split.getCommand() + " [not allowed]", false);
+            response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
         return response;
     }
@@ -769,7 +739,7 @@ public class Deck {
             response.playerUpdate(userName, split.getCommand(), true);
         }
         else {
-            response.playerUpdate(userName, split.getCommand() + " [not allowed]", false);
+            response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
         return response;
     }
@@ -785,9 +755,24 @@ public class Deck {
             response.playerUpdate(userName, split.getCommand(), true);
         }
         else {
-            response.playerUpdate(userName, split.getCommand() + " [not allowed]", false);
+            response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
         return response;
+    }
+
+    public void betMyInt(int myInt, String userName, Split split) {
+        bid = myInt;
+        bank += myInt;
+        response.playing.get(0).credit -= myInt;
+        response.playing.get(0).bet = true;
+        response.playing.get(0).turn = false;
+        for (int i = 1; i < response.playing.size(); i++) {
+            if (!response.playing.get(i).fold) {
+                response.playing.get(i).diff += myInt;
+                response.playing.get(i).check = false;
+            }
+        }
+        response.playerUpdate(userName, split.getCommand() + " " + myInt, true);
     }
 
     public Response bet(String userName, Split split) {
@@ -797,18 +782,7 @@ public class Deck {
             try {
                 myInt = Integer.parseInt(split.getMessage());
                 if (2 < myInt && myInt < response.playing.get(0).credit) {
-                    bid = myInt;
-                    bank += myInt;
-                    response.playing.get(0).credit -= myInt;
-                    response.playing.get(0).bet = true;
-                    response.playing.get(0).turn = false;
-                    for (int i = 1; i < response.playing.size(); i++) {
-                        if (!response.playing.get(i).fold) {
-                            response.playing.get(i).diff += myInt;
-                            response.playing.get(i).check = false;
-                        }
-                    }
-                    response.playerUpdate(userName, split.getCommand() + " " + myInt, true);
+                    betMyInt(myInt, userName, split);
                 }
                 else if (myInt <= 2) {
                     response.playerUpdate(userName, myInt + " is too small", false);
@@ -822,9 +796,27 @@ public class Deck {
             }
         }
         else {
-            response.playerUpdate(userName, split.getCommand() + " [not allowed]", false);
+            response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
         return response;
+    }
+
+    public void raiseMyInt(int myInt, String userName, Split split) {
+        bank += myInt;
+        response.playing.get(0).credit -= myInt;
+        response.playing.get(0).raise = true;
+        response.playing.get(0).turn = false;
+        for (int i = 1; i < response.playing.size(); i++) {
+            if (!response.playing.get(i).fold) {
+                response.playing.get(i).diff += myInt - bid;
+                response.playing.get(i).call = false;
+                response.playing.get(i).check = false;
+                response.playing.get(i).bet = false;
+                response.playing.get(i).raise = false;
+            }
+        }
+        bid = myInt;
+        response.playerUpdate(userName, split.getCommand() + " " + myInt, true);
     }
 
     public Response raise(String userName, Split split) {
@@ -834,21 +826,7 @@ public class Deck {
             try {
                 myInt = Integer.parseInt(split.getMessage());
                 if (2 * bid < myInt && myInt < response.playing.get(0).credit) {
-                    bank += myInt;
-                    response.playing.get(0).credit -= myInt;
-                    response.playing.get(0).raise = true;
-                    response.playing.get(0).turn = false;
-                    for (int i = 1; i < response.playing.size(); i++) {
-                        if (!response.playing.get(i).fold) {
-                            response.playing.get(i).diff += myInt - bid;
-                            response.playing.get(i).call = false;
-                            response.playing.get(i).check = false;
-                            response.playing.get(i).bet = false;
-                            response.playing.get(i).raise = false;
-                        }
-                    }
-                    bid = myInt;
-                    response.playerUpdate(userName, split.getCommand() + " " + myInt, true);
+                    raiseMyInt(myInt, userName, split);
                 }
                 else if (myInt < response.playing.get(0).credit) {
                     response.playerUpdate(userName, split.getCommand() + " " + myInt + " [is too small]", false);
@@ -862,7 +840,7 @@ public class Deck {
             }
         }
         else {
-            response.playerUpdate(userName, split.getCommand() + " [not allowed]", false);
+            response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
         return response;
     }
@@ -879,7 +857,7 @@ public class Deck {
             response.playerUpdate(userName, split.getCommand(), true);
         }
         else {
-            response.playerUpdate(userName, split.getCommand() + " [not allowed]", false);
+            response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
         return response;
     }
@@ -891,13 +869,13 @@ public class Deck {
             response.playerUpdate(userName, split.getCommand(), true);
         }
         else {
-            response.playerUpdate(userName, split.getCommand() + " [not allowed]", false);
+            response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
 
         }
         return response;
     }
 
-    public ArrayList<Integer> exchangeGetNums(String userName, ArrayList<Integer> intToBeRemoved, String[] splitText) {
+    public List<Integer> exchangeGetNums(String userName, List<Integer> intToBeRemoved, String[] splitText) {
         if (!splitText[0].equals("")) {
             int temp;
             for (String s : splitText) {
@@ -909,12 +887,12 @@ public class Deck {
                     else {
                         response.playerUpdate(userName, "wrong card number", false);
                         intToBeRemoved.clear();
-                        break;
+                        return intToBeRemoved;
                     }
                 } catch (Exception e) {
                     response.playerUpdate(userName, "wrong card number", false);
                     intToBeRemoved.clear();
-                    break;
+                    return intToBeRemoved;
                 }
             }
         }
@@ -923,7 +901,7 @@ public class Deck {
 
     public void exchangeRemoveCards(String userName, Split split) {
         String[] splitText = split.getMessage().split(" ");
-        ArrayList<Integer> intToBeRemoved = new ArrayList<>();
+        List<Integer> intToBeRemoved = new ArrayList<>();
 
         intToBeRemoved = exchangeGetNums(userName, intToBeRemoved, splitText);
 
@@ -961,7 +939,7 @@ public class Deck {
             }
         }
         else {
-            response.playerUpdate(userName, split.getCommand() + " [not allowed]", false);
+            response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
         return response;
     }
@@ -1061,7 +1039,7 @@ public class Deck {
             player.credit -= 2;
         }
         players.get(0).turn = true;
-        this.response = new Response(players);
+        this.response = new Response(new ArrayList<>(players));
         shuffle();
         dealTheCards();
 

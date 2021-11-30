@@ -11,7 +11,6 @@
     <modules>
         <module>MyDeck</module>
         <module>CommonUtil</module>
-        <module>MainApp</module>
         <module>SocketClient</module>
         <module>SocketServer</module>
     </modules>
