@@ -126,7 +126,7 @@ public class UserThread extends Thread {
                     anyWinner(deck);
                 }
             }catch (Exception ignored){
-                //thre is no winner
+                //no winner
             }
 
             if (response.getLastTried().contains("\\cya")) {
