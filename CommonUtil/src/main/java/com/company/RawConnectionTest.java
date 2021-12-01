@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.Socket;
 import org.apache.log4j.Logger;
 
-
+/**
+ * class used for test purpose
+ */
 public class RawConnectionTest extends Thread {
     private final int port;
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * hand evaluation class
  */
 public class Evaluate {
     private final ArrayList<Deck.Card> cards;
@@ -16,7 +16,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return points of evaluation
      */
     public int getPoints() {
         return points;
@@ -24,7 +24,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return type of points
      */
     public int getType() {
         return type;
@@ -55,7 +55,7 @@ public class Evaluate {
 
     /**
      *
-     * @param playerCards
+     * @param playerCards cards to be evaluated
      */
     public Evaluate(List<Deck.Card> playerCards) {
         this.points = 0;
@@ -109,7 +109,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return if is royal poker
      */
     private boolean isRoyalPoker() {
         if (color == 1 && diffRanks == 5 && maxOfOneRank == 1) {
@@ -127,7 +127,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return if is poker
      */
     private boolean isPoker() {
         if (color == 1 && diffRanks == 5 && maxOfOneRank == 1) {
@@ -145,7 +145,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return if is four of kind
      */
     private boolean isFourOfKind() {
         if (color == 4 && diffRanks == 2 && maxOfOneRank == 4) {
@@ -162,7 +162,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return if is full house
      */
     private boolean isFullHouse() {
         if ((color == 3 || color == 4) && diffRanks == 2 && maxOfOneRank == 3) {
@@ -179,7 +179,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return if is flush
      */
     private boolean isFlush() {
         if (color == 1 && diffRanks == 5 && maxOfOneRank == 1) {
@@ -191,7 +191,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return if is straight
      */
     private boolean isStraight() {
         ArrayList<Integer> ranks = new ArrayList<>(6);
@@ -211,7 +211,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return if is three of kind
      */
     private boolean isThreeOfKind() {
         if ((color == 3 || color == 4) && diffRanks == 3 && maxOfOneRank == 3) {
@@ -231,7 +231,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return if is two pairs
      */
     private boolean isTwoPairs() {
         if ((color == 2 || color == 3 || color == 4) && diffRanks == 3 && maxOfOneRank == 2) {
@@ -243,7 +243,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return if is one pair
      */
     private boolean isOnePair() {
         if ((color == 2 || color == 3 || color == 4) && diffRanks == 4 && maxOfOneRank == 2) {
@@ -260,7 +260,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return how many colors are in hand
      */
     private int howMuchColors() {
         ArrayList<Integer> colors = new ArrayList<>(4);
@@ -274,7 +274,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return how much different ranks are in hand
      */
     private int howMuchDiffRanks() {
         ArrayList<Integer> diff = new ArrayList<>(6);
@@ -288,7 +288,7 @@ public class Evaluate {
 
     /**
      *
-     * @return
+     * @return how much max cards of certain rank exist in hand
      */
     private int howMuchMaxOfOneRank() {
         ArrayList<Integer> ranks = new ArrayList<>(15);

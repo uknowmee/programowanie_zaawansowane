@@ -131,14 +131,14 @@ public class Deck {
         }
 
         /**
-         * @return
+         * @return ret Boolean - true if kicked
          */
         public boolean isKicked() {
             return kicked;
         }
 
         /**
-         * @return
+         * @return {@link #playerName} String - player name as string
          */
         @Override
         public String toString() {
@@ -162,7 +162,7 @@ public class Deck {
         private long time;
 
         /**
-         *
+         * Base constructor
          */
         Response() {
             this.part = 0;
@@ -173,7 +173,7 @@ public class Deck {
         }
 
         /**
-         * @param players
+         * @param players base deck players
          */
         Response(ArrayList<Player> players) {
             this.part = 1;
@@ -236,7 +236,7 @@ public class Deck {
 
         /**
          *
-         * @param accepted
+         * @param accepted if update should be accepted (queue switched)
          */
         private void update(Boolean accepted) {
             moveAccepted = accepted;
@@ -254,8 +254,8 @@ public class Deck {
 
         /**
          *
-         * @param players
-         * @return
+         * @param players - used to calculate the highest player points
+         * @return highestPoints Int
          */
         private int getHighestPoints(ArrayList<Player> players) {
             int maxPoints = players.get(0).points;
@@ -269,9 +269,9 @@ public class Deck {
 
         /**
          *
-         * @param players
-         * @param maxPoints
-         * @return
+         * @param players all plaing players
+         * @param maxPoints max points of playing players
+         * @return type of certain points
          */
         private int getHighestType(ArrayList<Player> players, int maxPoints) {
             int maxType = 0;
@@ -285,7 +285,7 @@ public class Deck {
 
         /**
          *
-         * @return
+         * @return list of winning guys
          */
         private ArrayList<String> winEval() {
             ArrayList<Player> pls = new ArrayList<>(playing);
@@ -303,9 +303,9 @@ public class Deck {
         }
 
         /**
-         * @param userName
-         * @param message
-         * @param accepted
+         * @param userName name of player to be updated
+         * @param message message of player
+         * @param accepted if accepted
          */
         private void playerUpdate(String userName, String message, Boolean accepted) {
             update(accepted);
@@ -401,8 +401,8 @@ public class Deck {
     }
 
     /**
-     * @param name
-     * @return
+     * @param name player of which cards will be returned
+     * @return cards as string
      */
     public String getPlayingCardsFromName(String name) {
         StringBuilder ret = new StringBuilder();
@@ -418,7 +418,7 @@ public class Deck {
     }
 
     /**
-     * @return
+     * @return all names of playing players
      */
     public List<String> getPlayingNames() {
         ArrayList<String> names = new ArrayList<>();
@@ -431,8 +431,8 @@ public class Deck {
     }
 
     /**
-     * @param name
-     * @return
+     * @param name name of player which credit we will return
+     * @return credit Int - credit of a player
      */
     public int getPlayerCreditFromName(String name) {
         for (Player player : response.playing) {
@@ -457,8 +457,8 @@ public class Deck {
     }
 
     /**
-     * @param player
-     * @return
+     * @param player player to be checked
+     * @return true if kicked
      */
     public Boolean isKicked(String player) {
         for (Player pl : players) {
@@ -488,21 +488,21 @@ public class Deck {
     }
 
     /**
-     * @return
+     * @return bank of the game
      */
     public int getBank() {
         return bank;
     }
 
     /**
-     * @return
+     * @return bid of the game
      */
     public int getBid() {
         return bid;
     }
 
     /**
-     * @return
+     * @return returns true if there is any allIn move in game
      */
     public boolean getAll() {
         return response.all;
@@ -553,14 +553,14 @@ public class Deck {
     }
 
     /**
-     * @param userName
+     * @param userName joins the player to the game
      */
     public void playerJoin(String userName) {
         players.add(new Player(userName));
     }
 
     /**
-     * @param userName
+     * @param userName helps with leaving the game
      */
     public void playerLeave(String userName) {
         for (Player player : players) {
@@ -621,7 +621,7 @@ public class Deck {
     }
 
     /**
-     * @param userName
+     * @param userName collect cards from certain user
      */
     public void collectCardsFromUser(String userName) {
         if (!response.playing.isEmpty()) {
@@ -677,11 +677,10 @@ public class Deck {
 
     /**
      *
-     * @param userName
-     * @param split
-     * @return
+     * @param userName user to fold
+     * @param split his message
      */
-    public Response fold(String userName, Split split) {
+    public void fold(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit > 0 && !response.playing.get(0).exchange) {
             response.playing.get(0).fold = true;
@@ -693,16 +692,14 @@ public class Deck {
         else {
             response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
-        return response;
     }
 
     /**
      *
-     * @param userName
-     * @param split
-     * @return
+     * @param userName user to check
+     * @param split his message
      */
-    public Response check(String userName, Split split) {
+    public void check(String userName, Split split) {
         rank();
         if (bid == 0 && response.playing.get(0).credit > 0 && !response.playing.get(0).exchange) {
             response.playing.get(0).check = true;
@@ -712,16 +709,14 @@ public class Deck {
         else {
             response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
-        return response;
     }
 
     /**
      *
-     * @param userName
-     * @param split
-     * @return
+     * @param userName user to call
+     * @param split his message
      */
-    public Response call(String userName, Split split) {
+    public void call(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit > bid && bid != 0 && !response.playing.get(0).exchange) {
             response.playing.get(0).turn = false;
@@ -733,14 +728,13 @@ public class Deck {
         else {
             response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
-        return response;
     }
 
     /**
      *
-     * @param myInt
-     * @param userName
-     * @param split
+     * @param myInt int to be bet
+     * @param userName username
+     * @param split his message
      */
     public void betMyInt(int myInt, String userName, Split split) {
         bid = myInt;
@@ -759,11 +753,10 @@ public class Deck {
 
     /**
      *
-     * @param userName
-     * @param split
-     * @return
+     * @param userName user to bet
+     * @param split his message
      */
-    public Response bet(String userName, Split split) {
+    public void bet(String userName, Split split) {
         rank();
         if (bid == 0 && response.playing.get(0).credit > 2 && !getAll() && !response.playing.get(0).exchange) {
             int myInt;
@@ -786,14 +779,13 @@ public class Deck {
         else {
             response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
-        return response;
     }
 
     /**
      *
-     * @param myInt
-     * @param userName
-     * @param split
+     * @param myInt int to be raised
+     * @param userName username
+     * @param split his message
      */
     public void raiseMyInt(int myInt, String userName, Split split) {
         bank += myInt;
@@ -814,11 +806,10 @@ public class Deck {
 
     /**
      *
-     * @param userName
-     * @param split
-     * @return
+     * @param userName user to raise
+     * @param split his message
      */
-    public Response raise(String userName, Split split) {
+    public void raise(String userName, Split split) {
         rank();
         if (bid != 0 && response.playing.get(0).credit > 2 * bid && !getAll() && !response.playing.get(0).exchange) {
             int myInt;
@@ -841,16 +832,14 @@ public class Deck {
         else {
             response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
-        return response;
     }
 
     /**
      *
-     * @param userName
-     * @param split
-     * @return
+     * @param userName user to all
+     * @param split his message
      */
-    public Response all(String userName, Split split) {
+    public void all(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit - bid <= 0 && bid != 0 && !response.playing.get(0).exchange) {
             response.playing.get(0).turn = false;
@@ -863,16 +852,14 @@ public class Deck {
         else {
             response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
-        return response;
     }
 
     /**
      *
-     * @param userName
-     * @param split
-     * @return
+     * @param userName user to cya
+     * @param split his message
      */
-    public Response cya(String userName, Split split) {
+    public void cya(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit < 0 && !response.playing.get(0).exchange) {
             collectCardsFromUser(userName);
@@ -882,15 +869,14 @@ public class Deck {
             response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
 
         }
-        return response;
     }
 
     /**
      *
-     * @param userName
-     * @param intToBeRemoved
-     * @param splitText
-     * @return
+     * @param userName user to be exchanged with cards
+     * @param intToBeRemoved which he wants to remove
+     * @param splitText his exchange message
+     * @return list which he wants to remove
      */
     public List<Integer> exchangeGetNums(String userName, List<Integer> intToBeRemoved, String[] splitText) {
         if (!splitText[0].equals("")) {
@@ -918,8 +904,8 @@ public class Deck {
 
     /**
      *
-     * @param userName
-     * @param split
+     * @param userName user to be exchanged with cards
+     * @param split his message
      */
     public void exchangeRemoveCards(String userName, Split split) {
         String[] splitText = split.getMessage().split(" ");
@@ -946,11 +932,10 @@ public class Deck {
 
     /**
      *
-     * @param userName
-     * @param split
-     * @return
+     * @param userName his name
+     * @param split his message
      */
-    public Response exchange(String userName, Split split) {
+    public void exchange(String userName, Split split) {
 
         if (response.playing.get(0).exchange) {
 
@@ -969,13 +954,12 @@ public class Deck {
         else {
             response.playerUpdate(userName, split.getCommand() + NOT_ALLOWED, false);
         }
-        return response;
     }
 
     /**
-     * @param userName
-     * @param text
-     * @return
+     * @param userName name
+     * @param text un parted message
+     * @return his response
      */
     public Response updateResponse(String userName, String text) {
 
@@ -1016,7 +1000,7 @@ public class Deck {
     }
 
     /**
-     *
+     * evaluate players hands
      */
     public void rank() {
         sortCards();
@@ -1032,7 +1016,7 @@ public class Deck {
     }
 
     /**
-     *
+     * resets the game between rounds
      */
     public void gameReset() {
         bid = 0;
@@ -1065,7 +1049,7 @@ public class Deck {
     }
 
     /**
-     *
+     * after getting all players in game it starts
      */
     public void startResponse() {
         this.bank += this.players.size() * 2;

@@ -138,6 +138,14 @@ public class UserThreadTest {
                 \\msgall - msg all connected users
                 \\<username> - msg specified user
                 \\info - show in game info about current player (if in game)
+                \\fold - ONLY IN GAME use it if u want to pass
+                \\check - ONLY IN GAME use it if u want to check a player
+                \\call - ONLY IN GAME use it if u want to call someones bet
+                \\bet <money> - ONLY IN GAME use it if u want to bet
+                \\raise <money> - ONLY IN GAME use it if u want to re-bet
+                \\all - ONLY IN GAME use it if u cant call
+                \\cya - ONLY IN GAME use it after u went down with money
+                \\exchange <cardNum cardNum> - ONLY IN GAME use it to exchange cards
                 \\bye - exit
                 ###########################################################
                 """, newUser.userAction(newUser.getName(), "\\help"));
@@ -322,7 +330,7 @@ public class UserThreadTest {
     }
 
     @Test
-    public void mainAction1() throws InterruptedException {
+    public void mainAction1() {
         newUser.userAction(name, "\\adddeck hihi 3");
         newUser1.userAction(name1, "\\joindeck hihi");
         newUser2.userAction(name2, "\\joindeck hihi");
@@ -359,7 +367,7 @@ public class UserThreadTest {
     }
 
     @Test
-    public void for3percent() throws InterruptedException {
+    public void for3percent() {
         Deck deck = new Deck("letsTest", "michal", 3);
         deck.playerJoin("wojtek");
         deck.playerJoin("ola");
@@ -385,7 +393,7 @@ public class UserThreadTest {
     }
 
     @Test
-    public void for3percentV2() throws InterruptedException {
+    public void for3percentV2() {
 
         server.addDeck("letsTest", newUser, 3);
 

@@ -251,6 +251,8 @@ public class DeckTest {
         deck.updateResponse("ola", "\\call");
 
         deck.updateResponse("michal", "\\exchange");
+        deck.updateResponse("wojtek", "\\exchange 7 5");
+        deck.updateResponse("wojtek", "\\exchange sadasd");
         deck.updateResponse("wojtek", "\\exchange");
         deck.updateResponse("ola", "\\exchange");
 
@@ -290,5 +292,13 @@ public class DeckTest {
         deck.updateResponse("ola", "\\cya");
 
         assertEquals(1, deck.getResponse().getWinner().size());
+    }
+
+    @Test
+    public void collect() {
+
+        deck.collectTheCards();
+
+        assertEquals("", deck.getPlayingCardsFromName("michal"));
     }
 }

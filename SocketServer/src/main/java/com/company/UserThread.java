@@ -83,8 +83,8 @@ public class UserThread extends Thread {
 
     /**
      *
-     * @param deck
-     * @return
+     * @param deck checks in certain deck if there are any winners
+     * @return if successfully sent a message
      */
     public String anyWinner(Deck deck) {
 
@@ -162,6 +162,14 @@ public class UserThread extends Thread {
                 \\msgall - msg all connected users
                 \\<username> - msg specified user
                 \\info - show in game info about current player (if in game)
+                \\fold - ONLY IN GAME use it if u want to pass
+                \\check - ONLY IN GAME use it if u want to check a player
+                \\call - ONLY IN GAME use it if u want to call someones bet
+                \\bet <money> - ONLY IN GAME use it if u want to bet
+                \\raise <money> - ONLY IN GAME use it if u want to re-bet
+                \\all - ONLY IN GAME use it if u cant call
+                \\cya - ONLY IN GAME use it after u went down with money
+                \\exchange <cardNum cardNum> - ONLY IN GAME use it to exchange cards
                 \\bye - exit
                 ###########################################################
                 """;
@@ -319,8 +327,8 @@ public class UserThread extends Thread {
     }
 
     /**
-     * @param userName
-     * @return
+     * @param userName user which want to pop an info
+     * @return his message
      */
     public String info(String userName) {
         String message;
@@ -493,8 +501,8 @@ public class UserThread extends Thread {
     }
 
     /**
-     * @param core
-     * @return
+     * @param core name which player want to have
+     * @return his real name
      */
     public String getFirstAvailableName(String core) {
         String userName = core;
