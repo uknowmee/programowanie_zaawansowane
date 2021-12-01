@@ -76,7 +76,7 @@ public class Deck {
 
         @Override
         public String toString() {
-            return "(" + num + ") "+ this.rank + " (" + this.rank.value + ") " + this.suit;
+            return this.rank + " (" + this.rank.value + ") " + this.suit;
         }
 
         /**
@@ -321,6 +321,7 @@ public class Deck {
                 }
             }
             else if ((playing.get(0).bet || playing.get(0).raise || playing.get(0).check || all) && part % 2 == 0) {
+                winner = winEval();
                 for (Player pl : playing) {
                     pl.check = false;
                     pl.bet = false;
@@ -330,7 +331,6 @@ public class Deck {
                 }
                 all = false;
                 part++;
-                winner = winEval();
             }
             time = System.currentTimeMillis();
         }
@@ -406,10 +406,13 @@ public class Deck {
      */
     public String getPlayingCardsFromName(String name) {
         StringBuilder ret = new StringBuilder();
+        int i=0;
+
         for (Player player : response.playing) {
             if (player.playerName.equals(name)) {
                 for (Card card : player.playerCards) {
-                    ret.append("\t").append(card).append("\n");
+                    ret.append("\t").append("[").append(i).append("]").append(card).append("\n");
+                    i++;
                 }
                 return ret.toString();
             }
@@ -526,6 +529,11 @@ public class Deck {
         this.started = started;
     }
 
+    /**
+     * helper methof for test purposes
+     * @param plName name to set credit
+     * @param toSet credit to set
+     */
     public void setPlayersCredit(String plName, int toSet) {
         for (Player pl : response.playing) {
             if (pl.playerName.equals(plName)) {
@@ -589,7 +597,7 @@ public class Deck {
     }
 
     /**
-     *
+     * sort cards
      */
     public void sortCards() {
         Card card;

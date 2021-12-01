@@ -270,7 +270,11 @@ public class DeckTest {
     @Test
     public void raise() {
 
+        deck.updateResponse("michal", "\\bet 1011");
+        deck.updateResponse("michal", "\\bet 1");
+        deck.updateResponse("michal", "\\bet asdasd");
         deck.updateResponse("michal", "\\bet 10");
+        deck.updateResponse("wojtek", "\\bet 10");
         deck.updateResponse("wojtek", "\\raise 21");
         deck.updateResponse("ola", "\\call");
         deck.updateResponse("michal", "\\raise 45");
