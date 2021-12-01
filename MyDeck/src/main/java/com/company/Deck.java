@@ -392,8 +392,7 @@ public class Deck {
         this.players = new ArrayList<>();
         this.players.add(new Player(userName));
 
-        this.cards = new ArrayList<>();
-        fabric();
+        this.cards = new ArrayList<>(fabric());
 
         this.name = deckName;
         this.numOfPlayers = numOfPlayers;
@@ -703,7 +702,7 @@ public class Deck {
     /**
      * Method is used by setCards method
      */
-    public void fabric() {
+    public List<Card> fabric() {
 
         int num = 0;
         ArrayList<Card> fabric = new ArrayList<>();
@@ -713,9 +712,15 @@ public class Deck {
                 num++;
             }
         }
-        cards = fabric;
+        return fabric;
     }
 
+    /**
+     *
+     * @param userName
+     * @param split
+     * @return
+     */
     public Response fold(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit > 0 && !response.playing.get(0).exchange) {
@@ -731,6 +736,12 @@ public class Deck {
         return response;
     }
 
+    /**
+     *
+     * @param userName
+     * @param split
+     * @return
+     */
     public Response check(String userName, Split split) {
         rank();
         if (bid == 0 && response.playing.get(0).credit > 0 && !response.playing.get(0).exchange) {
@@ -744,6 +755,12 @@ public class Deck {
         return response;
     }
 
+    /**
+     *
+     * @param userName
+     * @param split
+     * @return
+     */
     public Response call(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit > bid && bid != 0 && !response.playing.get(0).exchange) {
@@ -760,6 +777,12 @@ public class Deck {
         return response;
     }
 
+    /**
+     *
+     * @param myInt
+     * @param userName
+     * @param split
+     */
     public void betMyInt(int myInt, String userName, Split split) {
         bid = myInt;
         bank += myInt;
@@ -775,6 +798,12 @@ public class Deck {
         response.playerUpdate(userName, split.getCommand() + " " + myInt, true);
     }
 
+    /**
+     *
+     * @param userName
+     * @param split
+     * @return
+     */
     public Response bet(String userName, Split split) {
         rank();
         if (bid == 0 && response.playing.get(0).credit > 2 && !getAll() && !response.playing.get(0).exchange) {
@@ -801,6 +830,12 @@ public class Deck {
         return response;
     }
 
+    /**
+     *
+     * @param myInt
+     * @param userName
+     * @param split
+     */
     public void raiseMyInt(int myInt, String userName, Split split) {
         bank += myInt;
         response.playing.get(0).credit -= myInt;
@@ -819,6 +854,12 @@ public class Deck {
         response.playerUpdate(userName, split.getCommand() + " " + myInt, true);
     }
 
+    /**
+     *
+     * @param userName
+     * @param split
+     * @return
+     */
     public Response raise(String userName, Split split) {
         rank();
         if (bid != 0 && response.playing.get(0).credit > 2 * bid && !getAll() && !response.playing.get(0).exchange) {
@@ -845,6 +886,12 @@ public class Deck {
         return response;
     }
 
+    /**
+     *
+     * @param userName
+     * @param split
+     * @return
+     */
     public Response all(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit - bid <= 0 && bid != 0 && !response.playing.get(0).exchange) {
@@ -862,6 +909,12 @@ public class Deck {
         return response;
     }
 
+    /**
+     *
+     * @param userName
+     * @param split
+     * @return
+     */
     public Response cya(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit < 0 && !response.playing.get(0).exchange) {
@@ -875,6 +928,13 @@ public class Deck {
         return response;
     }
 
+    /**
+     *
+     * @param userName
+     * @param intToBeRemoved
+     * @param splitText
+     * @return
+     */
     public List<Integer> exchangeGetNums(String userName, List<Integer> intToBeRemoved, String[] splitText) {
         if (!splitText[0].equals("")) {
             int temp;
@@ -899,6 +959,11 @@ public class Deck {
         return intToBeRemoved;
     }
 
+    /**
+     *
+     * @param userName
+     * @param split
+     */
     public void exchangeRemoveCards(String userName, Split split) {
         String[] splitText = split.getMessage().split(" ");
         List<Integer> intToBeRemoved = new ArrayList<>();
@@ -922,6 +987,12 @@ public class Deck {
         }
     }
 
+    /**
+     *
+     * @param userName
+     * @param split
+     * @return
+     */
     public Response exchange(String userName, Split split) {
 
         if (response.playing.get(0).exchange) {
@@ -987,6 +1058,9 @@ public class Deck {
         return response;
     }
 
+    /**
+     *
+     */
     public void rank() {
         sortCards();
 
@@ -1000,6 +1074,9 @@ public class Deck {
         }
     }
 
+    /**
+     *
+     */
     public void gameReset() {
         bid = 0;
         response.moveAccepted = false;

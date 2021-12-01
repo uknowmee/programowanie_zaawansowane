@@ -320,4 +320,41 @@ public class UserThreadTest {
     public void actionMsgAll() {
         assertEquals("messaged all", newUser.userAction(name, "\\msgall hello everybody"));
     }
+
+    @Test
+    public void mainAction1() throws InterruptedException {
+        newUser.userAction(name, "\\adddeck hihi 3");
+        newUser1.userAction(name1, "\\joindeck hihi");
+        newUser2.userAction(name2, "\\joindeck hihi");
+
+        assertEquals("send from deck", newUser.action(name, "\\info"));
+
+        newUser.userAction(name, "\\leavedeck");
+        newUser1.userAction(name1, "\\leavedeck");
+        newUser2.userAction(name2, "\\leavedeck");
+    }
+
+    @Test
+    public void mainAction2() throws InterruptedException {
+        newUser.userAction(name, "\\adddeck hihi 3");
+        newUser1.userAction(name1, "\\joindeck hihi");
+
+        assertEquals("", GameStartThread.gameStart());
+
+        assertEquals("send from deck", newUser.action(name, "\\info"));
+
+        newUser.userAction(name, "\\leavedeck");
+        newUser1.userAction(name1, "\\leavedeck");
+    }
+
+    @Test
+    public void mainAction3() throws InterruptedException {
+        newUser1.userAction(name1, "\\joindeck hihi");
+
+        assertEquals("", GameStartThread.gameStart());
+
+        assertEquals("send from no existing deck", newUser.action(name, "\\info"));
+
+        newUser1.userAction(name1, "\\leavedeck");
+    }
 }

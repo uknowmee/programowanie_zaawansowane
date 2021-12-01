@@ -81,6 +81,11 @@ public class UserThread extends Thread {
         return message;
     }
 
+    /**
+     *
+     * @param deck
+     * @return
+     */
     public String anyWinner(Deck deck) {
 
         String message;
@@ -415,7 +420,7 @@ public class UserThread extends Thread {
      * @param userName      String - name of a client
      * @param clientMessage String - his message in format: command message
      */
-    private void action(String userName, String clientMessage) {
+    public String action(String userName, String clientMessage) {
         boolean send = false;
         Deck deck;
         try {
@@ -427,17 +432,20 @@ public class UserThread extends Thread {
                                 !deck.getResponse().getLastTried().equals(userName + ": " + clientMessage)) {
                     send = true;
                     deckAction(userName, deck);
+                    return "send from deck";
                 }
             }
         } catch (Exception e) {
             if (!send) {
                 userAction(userName, clientMessage);
-                send = true;
+                return "send from no existing deck";
             }
         }
         if (!send) {
             userAction(userName, clientMessage);
+            return "send from deck";
         }
+        return "";
     }
 
     /**

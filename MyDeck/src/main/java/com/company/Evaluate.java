@@ -3,8 +3,10 @@ package com.company;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ */
 public class Evaluate {
-
     private final ArrayList<Deck.Card> cards;
     private int points;
     private int type;
@@ -12,14 +14,25 @@ public class Evaluate {
     private int diffRanks;
     private int maxOfOneRank;
 
+    /**
+     *
+     * @return
+     */
     public int getPoints() {
         return points;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getType() {
         return type;
     }
 
+    /**
+     *
+     */
     private enum Class {
         ROYAL_POKER(10),
         POKER(9),
@@ -40,6 +53,10 @@ public class Evaluate {
 
     }
 
+    /**
+     *
+     * @param playerCards
+     */
     public Evaluate(List<Deck.Card> playerCards) {
         this.points = 0;
         this.type = 0;
@@ -49,6 +66,9 @@ public class Evaluate {
         this.maxOfOneRank = 0;
     }
 
+    /**
+     *
+     */
     public void eval() {
         color = howMuchColors();
         diffRanks = howMuchDiffRanks();
@@ -87,6 +107,10 @@ public class Evaluate {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isRoyalPoker() {
         if (color == 1 && diffRanks == 5 && maxOfOneRank == 1) {
             ArrayList<Integer> ranks = new ArrayList<>(6);
@@ -101,6 +125,10 @@ public class Evaluate {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isPoker() {
         if (color == 1 && diffRanks == 5 && maxOfOneRank == 1) {
             ArrayList<Integer> ranks = new ArrayList<>(6);
@@ -115,6 +143,10 @@ public class Evaluate {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isFourOfKind() {
         if (color == 4 && diffRanks == 2 && maxOfOneRank == 4) {
             if (cards.get(0).getRank() == cards.get(1).getRank()) {
@@ -128,6 +160,10 @@ public class Evaluate {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isFullHouse() {
         if ((color == 3 || color == 4) && diffRanks == 2 && maxOfOneRank == 3) {
             if (cards.get(0).getRank() == cards.get(1).getRank() && cards.get(1).getRank() == cards.get(2).getRank()) {
@@ -141,6 +177,10 @@ public class Evaluate {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isFlush() {
         if (color == 1 && diffRanks == 5 && maxOfOneRank == 1) {
             this.type = cards.get(cards.size() - 1).getRank();
@@ -149,6 +189,10 @@ public class Evaluate {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isStraight() {
         ArrayList<Integer> ranks = new ArrayList<>(6);
         for (Deck.Card card : cards) {
@@ -165,6 +209,10 @@ public class Evaluate {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isThreeOfKind() {
         if ((color == 3 || color == 4) && diffRanks == 3 && maxOfOneRank == 3) {
             if (cards.get(0).getRank() == cards.get(1).getRank() && cards.get(1).getRank() == cards.get(2).getRank()) {
@@ -181,6 +229,10 @@ public class Evaluate {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isTwoPairs() {
         if ((color == 2 || color == 3 || color == 4) && diffRanks == 3 && maxOfOneRank == 2) {
             this.type = cards.get(3).getRank();
@@ -189,6 +241,10 @@ public class Evaluate {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean isOnePair() {
         if ((color == 2 || color == 3 || color == 4) && diffRanks == 4 && maxOfOneRank == 2) {
             if (cards.get(0).getRank() == cards.get(1).getRank() || cards.get(1).getRank() == cards.get(2).getRank()) {
@@ -202,6 +258,10 @@ public class Evaluate {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private int howMuchColors() {
         ArrayList<Integer> colors = new ArrayList<>(4);
         for (Deck.Card card : cards) {
@@ -212,6 +272,10 @@ public class Evaluate {
         return colors.size();
     }
 
+    /**
+     *
+     * @return
+     */
     private int howMuchDiffRanks() {
         ArrayList<Integer> diff = new ArrayList<>(6);
         for (Deck.Card card : cards) {
@@ -222,6 +286,10 @@ public class Evaluate {
         return diff.size();
     }
 
+    /**
+     *
+     * @return
+     */
     private int howMuchMaxOfOneRank() {
         ArrayList<Integer> ranks = new ArrayList<>(15);
         for (int i = 0; i < 15; i++) {
@@ -242,5 +310,4 @@ public class Evaluate {
 
         return ranks.get(ranks.size() - 1);
     }
-
 }

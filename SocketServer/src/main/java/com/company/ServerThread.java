@@ -135,6 +135,10 @@ public class ServerThread extends Thread {
         return usersString;
     }
 
+    /**
+     *
+     * @return
+     */
     public String info() {
         for (Deck deck : Server.getDecks()) {
             if (deck.isStarted()) {

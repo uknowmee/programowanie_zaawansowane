@@ -164,6 +164,31 @@ public class ServerThreadTest {
     }
 
     @Test
+    public void actionInfo() throws InterruptedException {
+        newUser.userAction(name, "\\adddeck first 2");
+        newUser1.userAction(name1, "\\joindeck first");
+
+        GameStartThread gameStartThread = new GameStartThread();
+        GameStartedThread gameStartedThread = new GameStartedThread();
+
+        GameStartThread.gameStart();
+
+        assertEquals("messaged all", serverThread.action(new Server.Split("\\info")));
+    }
+
+    @Test
+    public void actionInfoNotRunning() throws InterruptedException {
+        newUser.userAction(name, "\\adddeck first 2");
+
+        GameStartThread gameStartThread = new GameStartThread();
+        GameStartedThread gameStartedThread = new GameStartedThread();
+
+        GameStartThread.gameStart();
+
+        assertEquals("messaged all", serverThread.action(new Server.Split("\\info")));
+    }
+
+    @Test
     public void showDecks() {
         newUser.userAction(name, "\\adddeck first 2");
         newUser1.userAction(name1, "\\joindeck first");
