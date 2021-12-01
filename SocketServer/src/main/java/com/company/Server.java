@@ -288,7 +288,7 @@ public class Server {
                 userName = user.getUserName();
             }
         }
-        decks.add(new Deck(serverLogger, deckName, userName, numOfPlayers));
+        decks.add(new Deck(deckName, userName, numOfPlayers));
     }
 
     /**

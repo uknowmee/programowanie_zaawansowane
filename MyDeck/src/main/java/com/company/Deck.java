@@ -1,7 +1,6 @@
 package com.company;
 
 
-import org.apache.log4j.Logger;
 import java.util.*;
 
 
@@ -11,7 +10,6 @@ import java.util.*;
  */
 public class Deck {
     private final Random random;
-    private final Logger logger;
 
     private final String name;
     private final List<Player> players;
@@ -37,19 +35,17 @@ public class Deck {
          */
         private enum Rank {
 
-            DZIEWIATKA("Dziewiatka", 9),
-            DZIESIATKA("Dziesiatka", 10),
-            WALET("Walet", 11),
-            DAMA("Dama", 12),
-            KROL("Krol", 13),
-            AS("As", 14);
+            DZIEWIATKA(9),
+            DZIESIATKA(10),
+            WALET(11),
+            DAMA(12),
+            KROL(13),
+            AS(14);
 
             private final int value;
-            private final String designation;
 
-            Rank(String designation, int value) {
+            Rank(int value) {
                 this.value = value;
-                this.designation = designation;
             }
         }
 
@@ -58,16 +54,14 @@ public class Deck {
          */
         private enum Suit {
 
-            PIK("Pik", 0),
-            TREFL("Trefl", 1),
-            KIER("Kier", 2),
-            KARO("Karo", 3);
+            PIK(0),
+            TREFL(1),
+            KIER(2),
+            KARO(3);
 
-            private final String suitOfCard;
             private final int numOfColor;
 
-            Suit(String suitToSet, int numOfColor) {
-                this.suitOfCard = suitToSet;
+            Suit(int numOfColor) {
                 this.numOfColor = numOfColor;
             }
         }
@@ -82,7 +76,7 @@ public class Deck {
 
         @Override
         public String toString() {
-            return this.rank + " (" + this.rank.value + ") " + this.suit;
+            return "(" + num + ") "+ this.rank + " (" + this.rank.value + ") " + this.suit;
         }
 
         /**
@@ -107,7 +101,7 @@ public class Deck {
         private final String playerName;
         private boolean fold;
         private boolean check;
-        private boolean call;
+
         private boolean bet;
         private boolean raise;
         private boolean all;
@@ -131,7 +125,6 @@ public class Deck {
             this.credit = 100;
             this.fold = false;
             this.check = false;
-            this.call = false;
             this.bet = false;
             this.raise = false;
             this.turn = false;
@@ -158,11 +151,8 @@ public class Deck {
      * Static response from Deck with running game to server
      */
     static class Response {
-        private int round;
         private int part;
-        private List<Player> players;
         private List<Player> playing;
-        private List<Player> notPlaying;
         private String whoLast;
         private String whoNow;
         private String whoNext;
@@ -176,7 +166,6 @@ public class Deck {
          *
          */
         Response() {
-            this.round = 0;
             this.part = 0;
             this.moveAccepted = false;
             this.winner = new ArrayList<>();
@@ -188,27 +177,16 @@ public class Deck {
          * @param players
          */
         Response(ArrayList<Player> players) {
-            this.round = 1;
             this.part = 1;
-            this.players = players;
             this.playing = new ArrayList<>(players);
-            this.notPlaying = new ArrayList<>();
             this.whoLast = "";
-            this.whoNow = this.players.get(0).playerName;
-            this.whoNext = this.players.get(1).playerName;
+            this.whoNow = this.playing.get(0).playerName;
+            this.whoNext = this.playing.get(1).playerName;
             this.all = false;
-        }
-
-        public int getRound() {
-            return round;
         }
 
         public int getPart() {
             return part;
-        }
-
-        public List<Player> getPlayers() {
-            return players;
         }
 
         public List<Player> getPlaying() {
@@ -221,22 +199,6 @@ public class Deck {
                 playerNames.add(player.playerName);
             }
             return playerNames;
-        }
-
-        public List<Player> getNotPlaying() {
-            return notPlaying;
-        }
-
-        public String getWhoLast() {
-            return whoLast;
-        }
-
-        public String getWhoNow() {
-            return whoNow;
-        }
-
-        public String getWhoNext() {
-            return whoNext;
         }
 
         public Boolean getMoveAccepted() {
@@ -273,6 +235,10 @@ public class Deck {
             }
         }
 
+        /**
+         *
+         * @param accepted
+         */
         private void update(Boolean accepted) {
             moveAccepted = accepted;
             if (Boolean.TRUE.equals(accepted)) {
@@ -282,14 +248,16 @@ public class Deck {
                 if (player.credit >= 0) {
                     playing.add(player);
                 }
-                else {
-                    notPlaying.add(player);
-                }
                 skipping();
                 playing.get(0).turn = true;
             }
         }
 
+        /**
+         *
+         * @param players
+         * @return
+         */
         private int getHighestPoints(ArrayList<Player> players) {
             int maxPoints = players.get(0).points;
             for (Player pl : players) {
@@ -300,6 +268,12 @@ public class Deck {
             return maxPoints;
         }
 
+        /**
+         *
+         * @param players
+         * @param maxPoints
+         * @return
+         */
         private int getHighestType(ArrayList<Player> players, int maxPoints) {
             int maxType = 0;
             for (Player pl : players) {
@@ -310,6 +284,10 @@ public class Deck {
             return maxType;
         }
 
+        /**
+         *
+         * @return
+         */
         private ArrayList<String> winEval() {
             ArrayList<Player> pls = new ArrayList<>(playing);
             ArrayList<String> maxPlayers = new ArrayList<>();
@@ -339,7 +317,6 @@ public class Deck {
                         pl.check = false;
                         pl.bet = false;
                         pl.raise = false;
-                        pl.call = false;
                         pl.all = false;
                         pl.exchange = true;
                     }
@@ -350,13 +327,11 @@ public class Deck {
                     pl.check = false;
                     pl.bet = false;
                     pl.raise = false;
-                    pl.call = false;
                     pl.all = false;
                     pl.exchange = false;
                     pl.fold = false;
                 }
                 all = false;
-                round++;
                 part++;
                 winner = winEval();
             }
@@ -377,17 +352,15 @@ public class Deck {
     /**
      * Base constructor
      *
-     * @param serverLogger {@link Logger} - log stuff
      * @param deckName     {@link String} - name of the deck
      * @param userName     {@link String} - name of deck creator
      * @param numOfPlayers {@link Integer} - max number of players
      */
-    public Deck(Logger serverLogger, String deckName,
+    public Deck(String deckName,
                 String userName, int numOfPlayers) {
 
         this.response = new Response();
         this.random = new Random();
-        this.logger = serverLogger;
 
         this.players = new ArrayList<>();
         this.players.add(new Player(userName));
@@ -556,6 +529,15 @@ public class Deck {
         this.started = started;
     }
 
+    public void setPlayersCredit(String plName, int toSet) {
+        for (Player pl : response.playing) {
+            if (pl.playerName.equals(plName)) {
+                pl.credit = toSet;
+                break;
+            }
+        }
+    }
+
     /**
      * Returns deck as string
      *
@@ -588,25 +570,6 @@ public class Deck {
             if (player.playerName.equals(userName)) {
                 players.remove(player);
                 break;
-            }
-        }
-    }
-
-    /**
-     * Void method which prints whole deck, list of cards, players and certain player cards
-     */
-    public void printDeck() {
-
-        logger.info("\tcards on heap: " + cards.size());
-        for (Card card : cards) {
-            logger.info("\t\t\t" + card.rank.designation + " (" + card.rank.value + ") " + card.suit.suitOfCard);
-        }
-
-        logger.info("\tcards in players hands: " + (24 - cards.size()));
-        for (Player player : players) {
-            logger.info("\t\t" + player.playerName + "s cards: " + player.playerCards.size());
-            for (Card card : player.playerCards) {
-                logger.info("\t\t\t" + card.rank.designation + " (" + card.rank.value + ") " + card.suit.suitOfCard);
             }
         }
     }
@@ -764,7 +727,6 @@ public class Deck {
     public Response call(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit > bid && bid != 0 && !response.playing.get(0).exchange) {
-            response.playing.get(0).call = true;
             response.playing.get(0).turn = false;
             response.playing.get(0).credit -= response.playing.get(0).diff;
             bank += response.playing.get(0).diff;
@@ -844,7 +806,6 @@ public class Deck {
         for (int i = 1; i < response.playing.size(); i++) {
             if (!response.playing.get(i).fold) {
                 response.playing.get(i).diff += myInt - bid;
-                response.playing.get(i).call = false;
                 response.playing.get(i).check = false;
                 response.playing.get(i).bet = false;
                 response.playing.get(i).raise = false;

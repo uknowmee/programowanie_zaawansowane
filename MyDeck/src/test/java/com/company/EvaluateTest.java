@@ -18,7 +18,7 @@ public class EvaluateTest {
 
     @Before
     public void setUp() {
-        Deck deck = new Deck(logger, "amamam", "asdasd", 3);
+        Deck deck = new Deck("amamam", "asdasd", 3);
         cards = deck.fabric();
     }
 
@@ -186,8 +186,4 @@ public class EvaluateTest {
         assertEquals(1, evaluate.getPoints());
         assertEquals(14, evaluate.getType());
     }
-
-
-
-
 }
