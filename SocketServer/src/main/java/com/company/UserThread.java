@@ -108,9 +108,8 @@ public class UserThread extends Thread {
      * @param response - {@link Deck.Response} - current {@link Deck} response
      * @return {@link Deck.Response} - current {@link Deck} response
      */
-    public Deck.Response sendMessage(String userName, Deck.Response response) {
+    public Deck.Response sendMessage(String userName, Deck.Response response, Deck deck) {
 
-        Deck deck = Objects.requireNonNull(Server.getUserFromName(userName)).getDeck();
         String message = response +
                 ",\n\tbank: " + deck.getBank() +
                 ", bid: " + deck.getBid() +
@@ -409,7 +408,7 @@ public class UserThread extends Thread {
      * @return {@link Deck.Response} - info about current deck state
      */
     public Deck.Response deckAction(String userName, Deck deck) {
-        return sendMessage(userName, deck.getResponse());
+        return sendMessage(userName, deck.getResponse(), deck);
     }
 
     /**

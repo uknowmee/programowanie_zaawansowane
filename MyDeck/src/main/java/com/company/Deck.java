@@ -104,7 +104,6 @@ public class Deck {
 
         private boolean bet;
         private boolean raise;
-        private boolean all;
         private boolean exchange;
         private boolean turn;
         private final boolean kicked;
@@ -317,7 +316,6 @@ public class Deck {
                         pl.check = false;
                         pl.bet = false;
                         pl.raise = false;
-                        pl.all = false;
                         pl.exchange = true;
                     }
                 }
@@ -327,7 +325,6 @@ public class Deck {
                     pl.check = false;
                     pl.bet = false;
                     pl.raise = false;
-                    pl.all = false;
                     pl.exchange = false;
                     pl.fold = false;
                 }
@@ -856,7 +853,6 @@ public class Deck {
     public Response all(String userName, Split split) {
         rank();
         if (response.playing.get(0).credit - bid <= 0 && bid != 0 && !response.playing.get(0).exchange) {
-            response.playing.get(0).all = true;
             response.playing.get(0).turn = false;
             bank += response.playing.get(0).credit;
             response.playing.get(0).credit = 0;

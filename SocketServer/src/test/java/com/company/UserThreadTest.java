@@ -357,4 +357,61 @@ public class UserThreadTest {
 
         newUser1.userAction(name1, "\\leavedeck");
     }
+
+    @Test
+    public void for3percent() throws InterruptedException {
+        Deck deck = new Deck("letsTest", "michal", 3);
+        deck.playerJoin("wojtek");
+        deck.playerJoin("ola");
+        deck.startResponse();
+
+        deck.updateResponse("michal", "\\check");
+        deck.updateResponse("wojtek", "\\check");
+        deck.updateResponse("ola", "\\check");
+
+        deck.updateResponse("michal", "\\exchange");
+        deck.updateResponse("wojtek", "\\exchange");
+        deck.updateResponse("ola", "\\exchange");
+
+
+        deck.setPlayersCredit("wojtek", -2);
+
+        deck.updateResponse("michal", "\\check");
+        deck.updateResponse("wojtek", "\\cya");
+        deck.updateResponse("ola", "\\check");
+
+        assertEquals("message sent", newUser.anyWinner(deck));
+
+    }
+
+    @Test
+    public void for3percentV2() throws InterruptedException {
+
+        server.addDeck("letsTest", newUser, 3);
+
+        Deck deck = new Deck("letsTest", "michal", 3);
+        deck.playerJoin("wojtek");
+        deck.playerJoin("ola");
+        deck.startResponse();
+
+        deck.updateResponse("michal", "\\check");
+        deck.updateResponse("wojtek", "\\check");
+        deck.updateResponse("ola", "\\check");
+
+        deck.updateResponse("michal", "\\exchange");
+        deck.updateResponse("wojtek", "\\exchange");
+        deck.updateResponse("ola", "\\exchange");
+
+
+        deck.setPlayersCredit("wojtek", -2);
+
+        deck.updateResponse("michal", "\\check");
+        deck.updateResponse("wojtek", "\\cya");
+        deck.updateResponse("ola", "\\check");
+
+//        newUser.sendMessage("michal", deck.getResponse());
+
+        assertEquals(deck.getResponse(), newUser.sendMessage("michal", deck.getResponse(), deck));
+
+    }
 }
