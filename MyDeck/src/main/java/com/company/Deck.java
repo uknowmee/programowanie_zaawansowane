@@ -283,6 +283,10 @@ public class Deck {
             return maxType;
         }
 
+        public void setMoveAccepted(Boolean toSet) {
+            moveAccepted = toSet;
+        }
+
         /**
          *
          * @return list of winning guys
@@ -957,6 +961,7 @@ public class Deck {
                 bid = 0;
                 rank();
                 response.playerUpdate(userName, split.getCommand(), false);
+                response.setMoveAccepted(true);
             }
         }
         else {

@@ -121,8 +121,12 @@ public class UserThread extends Thread {
                 Server.writeToUser(message, Objects.requireNonNull(Server.getUserFromName(plName)).getUserThread());
             }
 
-            if (!deck.getResponse().getWinner().isEmpty()) {
-                anyWinner(deck);
+            try{
+                if (!deck.getResponse().getWinner().isEmpty()) {
+                    anyWinner(deck);
+                }
+            }catch (Exception ignored){
+
             }
 
             if (response.getLastTried().contains("\\cya")) {
