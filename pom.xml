@@ -5,17 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.company</groupId>
-    <artifactId>SomceCardApp</artifactId>
+    <artifactId>readersWriters</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
     <modules>
-        <module>MyDeck</module>
-        <module>CommonUtil</module>
-        <module>SocketClient</module>
-        <module>SocketServer</module>
+
     </modules>
 
-    <name>SomceCardApp</name>
+    <name>ReadersWriters</name>
     <url>http://www.example.com</url>
 
     <dependencies>

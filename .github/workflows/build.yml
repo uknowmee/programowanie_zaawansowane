@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - lab_5_project_0.1.0
+      - readersWriters
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:

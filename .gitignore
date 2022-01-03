@@ -11,3 +11,8 @@ buildNumber.properties
 sample.log
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
+CommonUtil/CommonUtil.iml
+MyDeck/MyDeck.iml
+SocketClient/SocketClient.iml
+SocketServer/SocketServer.iml
+SomceCardApp.iml
