@@ -16,3 +16,6 @@ MyDeck/MyDeck.iml
 SocketClient/SocketClient.iml
 SocketServer/SocketServer.iml
 SomceCardApp.iml
+Writer/Writer.iml
+Reader/Reader.iml
+MainApp/MainApp.iml
