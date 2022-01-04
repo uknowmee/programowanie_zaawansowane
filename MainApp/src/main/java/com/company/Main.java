@@ -11,6 +11,21 @@ public class Main {
 
     static final Logger logger = Logger.getLogger(Main.class.getName());
 
+    public static int scanNumber() {
+
+        try {
+            int number = new Scanner(System.in).nextInt();
+            if (number > 0) {
+                return number;
+            }
+        } catch (Exception e) {
+            logger.info("wrong number!");
+            return 0;
+        }
+        logger.info("wrong number!");
+        return 0;
+    }
+
     public static void main(String[] args) {
         PropertyConfigurator.configure("./log4j.properties");
 
@@ -40,20 +55,5 @@ public class Main {
         ReadingRoom room = new ReadingRoom(numOfReaders, numOfWriters);
 
         room.start();
-    }
-
-    public static int scanNumber() {
-
-        try {
-            int number = new Scanner(System.in).nextInt();
-            if (number > 0) {
-                return number;
-            }
-        } catch (Exception e) {
-            logger.info("wrong number!");
-            return 0;
-        }
-        logger.info("wrong number!");
-        return 0;
     }
 }

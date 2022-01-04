@@ -11,9 +11,9 @@ public class WriterTest {
         ReadingRoom readingRoom = new ReadingRoom(2, 2);
         Resource resource = new Resource(readingRoom);
 
-        Reader reader = new Reader(resource, readingRoom);
+        Writer writer = new Writer(resource, readingRoom);
 
-        assertEquals(readingRoom, reader.getReadingRoom());
-        assertEquals(resource, reader.getBook());
+        assertEquals(readingRoom, writer.getReadingRoom());
+        assertEquals(resource, writer.getBook());
     }
 }
