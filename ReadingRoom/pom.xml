@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>Reader</artifactId>
+    <artifactId>ReadingRoom</artifactId>
 
     <build>
         <plugins>
@@ -23,7 +23,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.company.Reader</mainClass>
+                            <mainClass>com.company.ReadingRoom</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
