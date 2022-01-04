@@ -29,6 +29,7 @@ public class Main {
                 System.setIn(in);
             }
         } catch (Exception ignored) {
+//            do nothing
         }
 
         do {
