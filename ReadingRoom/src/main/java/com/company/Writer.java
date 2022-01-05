@@ -4,14 +4,10 @@ import org.apache.log4j.Logger;
 
 public class Writer extends User {
 
-    static final Logger logger = Logger.getLogger(ReadingRoom.class.getName());
-    private final Resource book;
-    private final ReadingRoom readingRoom;
+    static final Logger logger = Logger.getLogger(Writer.class.getName());
 
     Writer(Resource book, ReadingRoom readingRoom) {
         super(book, readingRoom);
-        this.book = book;
-        this.readingRoom = readingRoom;
     }
 
     @Override

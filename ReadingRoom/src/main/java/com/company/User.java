@@ -2,8 +2,8 @@ package com.company;
 
 public class User extends Thread {
 
-    private final Resource book;
-    private final ReadingRoom readingRoom;
+    protected final Resource book;
+    protected final ReadingRoom readingRoom;
 
     User(Resource book, ReadingRoom readingRoom) {
         this.book = book;
