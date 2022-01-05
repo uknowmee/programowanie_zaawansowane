@@ -24,13 +24,11 @@ public class Resource {
     }
 
     boolean tryRead(Reader reader) {
-        readingRoom.read(reader);
-        return true;
+        return readingRoom.read(reader);
     }
 
     boolean tryWrite(Writer writer) {
-        readingRoom.write(writer);
-        return true;
+        return readingRoom.write(writer);
     }
 
     public int[] change() {
@@ -41,7 +39,7 @@ public class Resource {
         int index = random.nextInt(10);
         int newVal = random.nextInt(10);
 
-        while (array[index] == newVal){
+        while (array[index] == newVal) {
             newVal = random.nextInt(10);
         }
         array[index] = newVal;

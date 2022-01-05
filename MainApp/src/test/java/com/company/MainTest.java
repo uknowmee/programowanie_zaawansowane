@@ -26,6 +26,11 @@ public class MainTest {
         in = new ByteArrayInputStream(input.getBytes());
         System.setIn(in);
         assertEquals(2, Main.scanNumber());
+
+        input = "-2";
+        in = new ByteArrayInputStream(input.getBytes());
+        System.setIn(in);
+        assertEquals(0, Main.scanNumber());
     }
 
     @Test

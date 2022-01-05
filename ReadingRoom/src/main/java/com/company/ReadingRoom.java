@@ -10,39 +10,139 @@ public class ReadingRoom {
 
     static final Logger logger = Logger.getLogger(ReadingRoom.class.getName());
     private final Resource book;
-    private final int numOfReaders;
-    private final int numOfWriters;
+    private int numOfReaders;
+    private int numOfWriters;
     private boolean writing;
     private boolean reading;
-    private final List<Reader> readers;
-    private final List<Writer> writers;
+    private boolean noMoreReaders;
+    private final List<User> users;
+    private static final String READER = "Reader ";
+    private static final String WRITER = "Writer ";
 
     ReadingRoom(int numOfReaders, int numOfWriters) {
         this.book = new Resource(this);
-        this.numOfReaders = numOfReaders;
-        this.numOfWriters = numOfWriters;
+        this.numOfReaders = 0;
+        this.numOfWriters = 0;
         this.writing = false;
         this.reading = false;
-        this.readers = new ArrayList<>();
-        this.writers = new ArrayList<>();
+        this.noMoreReaders = false;
+        this.users = new ArrayList<>();
+
+        User user;
+
+        for (int i = 0; i < numOfReaders; i++) {
+            user = new Reader(book, this);
+            users.add(user);
+        }
+        for (int i = 0; i < numOfWriters; i++) {
+            user = new Writer(book, this);
+            users.add(user);
+        }
+    }
+
+    public boolean isWriting() {
+        return writing;
+    }
+
+    public boolean isReading() {
+        return reading;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public int getNumOfReaders() {
+        return numOfReaders;
+    }
+
+    public int getNumOfWriters() {
+        return numOfWriters;
+    }
+
+    private int getSleep() {
+        return (int) (Math.random() * 2000);
     }
 
     public boolean read(Reader reader) {
-        logger.info(reader.getName() + " read: " + book + "\n\n");
+        synchronized (this) {
+            if (writing) {
+//                logger.info("Reader " + reader.getName() + " couldn't enter the room, because someone is writing.");
+                return false;
+            }
+
+//            System.out.println("Reader " + reader.getName() + " would like to get access to a resource");
+            if (numOfReaders > 2 && !noMoreReaders) {
+                noMoreReaders = true;
+            }
+
+            while (noMoreReaders) {
+                try {
+                    this.wait();
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+
+            logger.info(READER + reader.getName() + " entered the room with " + numOfReaders + " other readers.");
+            numOfReaders++;
+            reading = true;
+        }
+
+        try {
+            Thread.sleep(1000 + getSleep());
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
+        logger.info(READER + reader.getName() + " read: " + book);
+
+        synchronized (this) {
+            numOfReaders--;
+            logger.info(READER + reader.getName() + " has finished reading");
+            if (numOfReaders == 0) {
+                reading = false;
+                noMoreReaders = false;
+            }
+        }
         return true;
     }
 
     public boolean write(Writer writer) {
-        logger.info(writer.getName() + " changed from: \n\t\t\t\t Resource=" + Arrays.toString(book.change()) + "\n\t\t\t\t to:\n\t\t\t\t " + book + "\n\n");
+
+        synchronized (this) {
+            if (reading) {
+//                logger.info("Writer " + writer.getName() + " couldn't enter the room, because someone is reading.");
+                return false;
+            }
+
+            numOfWriters++;
+            writing = true;
+            logger.info(WRITER + writer.getName() + " has begun writing");
+
+            synchronized (book){
+                int i = 0;
+                while (i < 1) {
+                    try {
+                        book.wait(1000 + getSleep());
+                    } catch (InterruptedException ignored) {
+                        Thread.currentThread().interrupt();
+                    }
+                    i++;
+                }
+            }
+
+            logger.info(WRITER + writer.getName() + " changed from: \n\t\t\t\t Resource=" + Arrays.toString(book.change()) + "\n\t\t\t\t to:\n\t\t\t\t " + book);
+
+            numOfWriters--;
+            writing = false;
+            logger.info(WRITER + writer.getName() + " has finished writing");
+        }
         return true;
     }
 
     public void start() {
-        for (int i = 0; i < numOfReaders; i++) {
-            new Reader(book, this).start();
-        }
-        for (int i = 0; i < numOfWriters; i++) {
-            new Writer(book, this).start();
+        for (User user : users) {
+            user.start();
         }
     }
 }
