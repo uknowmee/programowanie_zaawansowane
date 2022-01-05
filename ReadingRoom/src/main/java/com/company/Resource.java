@@ -31,6 +31,11 @@ public class Resource {
         return readingRoom.write(writer);
     }
 
+    @Override
+    public String toString() {
+        return "Resource=" + Arrays.toString(array);
+    }
+
     public int[] change() {
         int[] old = new int[10];
 
@@ -45,10 +50,5 @@ public class Resource {
         array[index] = newVal;
 
         return old;
-    }
-
-    @Override
-    public String toString() {
-        return "Resource=" + Arrays.toString(array);
     }
 }

@@ -4,8 +4,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 public class ResourceTest {
 
@@ -31,5 +30,31 @@ public class ResourceTest {
             assertNotEquals(source.change(), source.getArray());
             i--;
         }
+    }
+
+    @Test
+    public void resourceChanges() {
+        ReadingRoom readingRoom = new ReadingRoom(12, 3);
+        Resource resource = new Resource(readingRoom);
+
+        Reader reader1 = new Reader(resource, readingRoom);
+
+        Writer writer1 = new Writer(resource, readingRoom);
+
+        assertTrue(resource.tryRead(reader1));
+        assertTrue(resource.tryWrite(writer1));
+
+        readingRoom.setWriting(true);
+        assertFalse(resource.tryRead(reader1));
+        assertFalse(resource.tryWrite(writer1));
+
+        readingRoom.setWriting(false);
+        readingRoom.setReading(true);
+        readingRoom.setNumOfReaders(2);
+        assertTrue(resource.tryRead(reader1));
+
+        readingRoom.setReading(true);
+        assertEquals(2, readingRoom.getNumOfReaders());
+        assertFalse(resource.tryWrite(writer1));
     }
 }

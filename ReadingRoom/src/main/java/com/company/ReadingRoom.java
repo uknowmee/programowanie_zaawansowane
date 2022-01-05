@@ -64,14 +64,24 @@ public class ReadingRoom {
         return (int) (Math.random() * 2000);
     }
 
+    public void setNumOfReaders(int numOfReaders) {
+        this.numOfReaders = numOfReaders;
+    }
+
+    public void setWriting(boolean writing) {
+        this.writing = writing;
+    }
+
+    public void setReading(boolean reading) {
+        this.reading = reading;
+    }
+
     public boolean read(Reader reader) {
         synchronized (this) {
             if (writing) {
-//                logger.info("Reader " + reader.getName() + " couldn't enter the room, because someone is writing.");
                 return false;
             }
 
-//            System.out.println("Reader " + reader.getName() + " would like to get access to a resource");
             if (numOfReaders > 2 && !noMoreReaders) {
                 noMoreReaders = true;
             }
@@ -90,7 +100,7 @@ public class ReadingRoom {
         }
 
         try {
-            Thread.sleep(1000 + getSleep());
+            Thread.sleep((long) 1000 + getSleep());
         } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
         }
@@ -110,8 +120,7 @@ public class ReadingRoom {
     public boolean write(Writer writer) {
 
         synchronized (this) {
-            if (reading) {
-//                logger.info("Writer " + writer.getName() + " couldn't enter the room, because someone is reading.");
+            if (reading || writing) {
                 return false;
             }
 
@@ -119,15 +128,15 @@ public class ReadingRoom {
             writing = true;
             logger.info(WRITER + writer.getName() + " has begun writing");
 
-            synchronized (book){
-                int i = 0;
-                while (i < 1) {
+            synchronized (book) {
+                boolean slept = false;
+                while (!slept) {
                     try {
-                        book.wait(1000 + getSleep());
+                        book.wait((long) 1000 + getSleep());
+                        slept = true;
                     } catch (InterruptedException ignored) {
                         Thread.currentThread().interrupt();
                     }
-                    i++;
                 }
             }
 

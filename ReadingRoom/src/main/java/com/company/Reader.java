@@ -1,7 +1,10 @@
 package com.company;
 
+import org.apache.log4j.Logger;
+
 public class Reader extends User {
 
+    static final Logger logger = Logger.getLogger(ReadingRoom.class.getName());
     private final Resource book;
     private final ReadingRoom readingRoom;
 
@@ -12,22 +15,9 @@ public class Reader extends User {
     }
 
     @Override
-    public Resource getBook() {
-        return book;
-    }
-
-    @Override
-    public ReadingRoom getReadingRoom() {
-        return readingRoom;
-    }
-
-    @Override
-    protected int getSleep(){
-        return (int) (Math.random() * 10);
-    }
-
-    @Override
     public void run() {
+        logger.info("Created " + getClass().getName() + " in the: " + readingRoom + " who wants to use: " + book);
+
         while (true) {
             try {
                 Thread.sleep(getSleep());
