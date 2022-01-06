@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Main reading room class
+ */
 public class ReadingRoom {
 
     static final Logger logger = Logger.getLogger(ReadingRoom.class.getName());
@@ -19,6 +22,11 @@ public class ReadingRoom {
     private static final String READER = "Reader ";
     private static final String WRITER = "Writer ";
 
+    /**
+     * Base constructor of reading room
+     * @param numOfReaders numbers of readers to be created
+     * @param numOfWriters numbers of writers to be created
+     */
     ReadingRoom(int numOfReaders, int numOfWriters) {
         this.book = new Resource(this);
         this.numOfReaders = 0;
@@ -76,6 +84,11 @@ public class ReadingRoom {
         this.reading = reading;
     }
 
+    /**
+     * Functions in which possibility of entering the room by reader is checked, is also provides w8ing inside the queue for entering the room
+     * @param reader Reading room user
+     * @return true if he read otherwise false
+     */
     public boolean read(Reader reader) {
         synchronized (this) {
             if (writing) {
@@ -117,6 +130,11 @@ public class ReadingRoom {
         return true;
     }
 
+    /**
+     * Controls if specified writer can update resource in current time
+     * @param writer Reading room user
+     * @return true if he updated otherwise false
+     */
     public boolean write(Writer writer) {
 
         synchronized (this) {
@@ -149,6 +167,9 @@ public class ReadingRoom {
         return true;
     }
 
+    /**
+     * Starts each reading room user Thread
+     */
     public void start() {
         for (User user : users) {
             user.start();

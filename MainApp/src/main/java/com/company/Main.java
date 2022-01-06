@@ -7,10 +7,17 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Scanner;
 
+/**
+ * Main program CLASS
+ */
 public class Main {
 
     static final Logger logger = Logger.getLogger(Main.class.getName());
 
+    /**
+     * Function which scans input from user, and decide if it's good
+     * @return users input as int if correct
+     */
     public static int scanNumber() {
 
         try {
@@ -26,6 +33,10 @@ public class Main {
         return 0;
     }
 
+    /**
+     * Main program function which starts everything
+     * @param args parameters of starting program should be nothing (in tests "test")
+     */
     public static void main(String[] args) {
         PropertyConfigurator.configure("./log4j.properties");
 
